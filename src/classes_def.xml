@@ -1,0 +1,36 @@
+<lcgdict>
+  <class name="TTAnalysis::BaseObject"/> 
+  <class name="std::vector<TTAnalysis::BaseObject>"/>
+  <class name="TTAnalysis::Lepton">
+    <field name="hlt_already_tried_matching" transient="true"/>
+  </class>
+  <class name="std::vector<TTAnalysis::Lepton>"/>
+  <class name="TTAnalysis::Jet"/>
+  <class name="std::vector<TTAnalysis::Jet>"/>
+  <class name="TTAnalysis::DiLepton"/>
+  <class name="std::vector<TTAnalysis::DiLepton>"/>
+  <class name="TTAnalysis::DiJet"/>
+  <class name="std::vector<TTAnalysis::DiJet>"/>
+  <class name="TTAnalysis::DiLepDiJet">
+    <field name="diLepton" transient="true"/>
+    <field name="diJet" transient="true"/>
+  </class>
+  <class name="std::vector<TTAnalysis::DiLepDiJet>"/>
+  <class name="TTAnalysis::DiLepDiJetMet">
+    <field name="diLepton" transient="true"/>
+    <field name="diJet" transient="true"/>
+  </class>
+  <class name="std::vector<TTAnalysis::DiLepDiJetMet>"/>
+  <class name="std::vector<uint16_t>"/>
+  <class name="std::vector<float>"/>
+  <class name="std::vector<std::vector<uint16_t>>"/>
+  <class name="TTAnalysis::TTBar"/>
+  <class name="std::vector<TTAnalysis::TTBar>"/>
+  <class name="std::vector<std::vector<TTAnalysis::TTBar>>"/>
+  <class name="std::vector<std::vector<std::vector<TTAnalysis::TTBar>>>"/>
+  <class name="TTAnalysis::GenParticle">
+    <field name="pruned_idx" transient="true"/>
+  </class>
+  <class name="std::vector<TTAnalysis::GenParticle>"/>
+</lcgdict>
+
