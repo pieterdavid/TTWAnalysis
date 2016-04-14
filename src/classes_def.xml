@@ -24,10 +24,6 @@
   <class name="std::vector<uint16_t>"/>
   <class name="std::vector<float>"/>
   <class name="std::vector<std::vector<uint16_t>>"/>
-  <class name="TTAnalysis::TTBar"/>
-  <class name="std::vector<TTAnalysis::TTBar>"/>
-  <class name="std::vector<std::vector<TTAnalysis::TTBar>>"/>
-  <class name="std::vector<std::vector<std::vector<TTAnalysis::TTBar>>>"/>
   <class name="TTAnalysis::GenParticle">
     <field name="pruned_idx" transient="true"/>
   </class>

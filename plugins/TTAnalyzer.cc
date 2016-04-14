@@ -56,8 +56,6 @@ void TTAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& setup, 
   diLepDiBJetsMet_DRCut_BWP_PtOrdered.resize( LepID::Count * LepIso::Count * LepID::Count * LepIso::Count * BWP::Count * BWP::Count );
   diLepDiBJetsMet_DRCut_BWP_CSVv2Ordered.resize( LepID::Count * LepIso::Count * LepID::Count * LepIso::Count * BWP::Count * BWP::Count );
   
-  ttbar.resize( LepID::Count * LepIso::Count * LepID::Count * LepIso::Count * BWP::Count * BWP::Count );
-
   gen_matched_b.resize( LepID::Count * LepIso::Count , -1);
   gen_matched_b_beforeFSR.resize( LepID::Count * LepIso::Count , -1);
   gen_matched_bbar.resize( LepID::Count * LepIso::Count , -1);
@@ -66,16 +64,6 @@ void TTAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& setup, 
   gen_b_beforeFSR_deltaR.resize( LepID::Count * LepIso::Count );
   gen_bbar_deltaR.resize( LepID::Count * LepIso::Count );
   gen_bbar_beforeFSR_deltaR.resize( LepID::Count * LepIso::Count );
-
-  if (!m_neutrinos_solver.get()) {
-    const float topMass = event.isRealData() ? 173.34 : 172.5;
-    // const float topWidth = event.isRealData() ? 1.41 : 1.50833649;
-
-    const float wMass = event.isRealData() ? 80.385 : 80.419002;
-    // const float wWidth = event.isRealData() ? 2.085 : 2.04759951;
-
-    m_neutrinos_solver.reset(new NeutrinosSolver(topMass, wMass));
-  }
 
   ///////////////////////////
   //       ELECTRONS       //
@@ -650,108 +638,6 @@ void TTAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& setup, 
     }
   }
   
-  ///////////////////////////
-  //         MTT           //
-  ///////////////////////////
-
-  #ifdef _TT_DEBUG_
-    std::cout << "Reconstructing mtt" << std::endl;
-  #endif
-
-#if TT_MTT_DEBUG
-  std::cout << "Reconstructing ttbar system" << std::endl;
-#endif
-
-  for(const LepID::LepID& id1: LepID::it){
-    for(const LepID::LepID& id2: LepID::it){
-      
-      for(const LepIso::LepIso& iso1: LepIso::it){
-        for(const LepIso::LepIso& iso2: LepIso::it){
-          
-          for(const BWP::BWP& wp1: BWP::it){ 
-            for(const BWP::BWP& wp2: BWP::it){ 
-              
-              uint16_t idx_comb_all = LepLepIDIsoJetJetBWP(id1, iso1, id2, iso2, wp1, wp2);
-
-              std::vector<std::vector<TTAnalysis::TTBar>> ttbar_event_sols;
-
-              for (const auto& idx: diLepDiBJetsMet_DRCut_BWP_CSVv2Ordered[idx_comb_all]) {
-
-                using namespace TTAnalysis;
-              
-                NeutrinosSolver::LorentzVector lepton1_p4(leptons[diLepDiJetsMet[idx].diLepton->lidxs.first].p4);
-                NeutrinosSolver::LorentzVector lepton2_p4(leptons[diLepDiJetsMet[idx].diLepton->lidxs.second].p4);
-                NeutrinosSolver::LorentzVector bjet1_p4(selJets[diLepDiJetsMet[idx].diJet->jidxs.first].p4);
-                NeutrinosSolver::LorentzVector bjet2_p4(selJets[diLepDiJetsMet[idx].diJet->jidxs.second].p4);
-
-                NeutrinosSolver::LorentzVector met_p4(met.p4);
-
-#if TT_MTT_DEBUG
-                std::cout << "Objects:" << std::endl;
-                std::cout << "\t Lepton 1: " << lepton1_p4 << std::endl;
-                std::cout << "\t b-jet 1: " << bjet1_p4 << std::endl;
-                std::cout << "\t Lepton 2: " << bjet2_p4 << std::endl;
-                std::cout << "\t b-jet 2: " << bjet2_p4 << std::endl;
-#endif
-
-                auto sols = m_neutrinos_solver->getNeutrinos(lepton1_p4, lepton2_p4, bjet1_p4, bjet2_p4, met_p4);
-
-#if TT_MTT_DEBUG
-                std::cout << "Got " << sols.size() << " solutions for neutrinos" << std::endl;
-#endif
-
-                std::vector<TTBar> ttbar_sols;
-                for (auto& sol: sols) {
-#if TT_MTT_DEBUG
-                    std::cout << "\t Neutrino 1: " << sol.first << std::endl;
-                    std::cout << "\t Neutrino 2: " << sol.second << std::endl;
-#endif
-                    ttbar_sols.push_back(TTBar(idx, myLorentzVector(lepton1_p4 + bjet1_p4 + sol.first), myLorentzVector(lepton2_p4 + bjet2_p4 + sol.second)));
-#if TT_MTT_DEBUG
-                    std::cout << "mtt: " << ttbar_sols.back().p4.M() << std::endl;
-#endif
-                }
-
-#if TT_MTT_DEBUG
-                std::cout << "Swapping b-jets and recomputing solutions" << std::endl;
-#endif
-
-                // Swap b-jets
-                std::swap(bjet1_p4, bjet2_p4);
-                sols = m_neutrinos_solver->getNeutrinos(lepton1_p4, lepton2_p4, bjet1_p4, bjet2_p4, met_p4);
-
-#if TT_MTT_DEBUG
-                std::cout << "Got " << sols.size() << " solutions for neutrinos" << std::endl;
-#endif
-
-                for (auto& sol: sols) {
-#if TT_MTT_DEBUG
-                    std::cout << "\t Neutrino 1: " << sol.first << std::endl;
-                    std::cout << "\t Neutrino 2: " << sol.second << std::endl;
-#endif
-                    ttbar_sols.push_back(TTBar(idx, myLorentzVector(lepton1_p4 + bjet1_p4 + sol.first), myLorentzVector(lepton2_p4 + bjet2_p4 + sol.second)));
-#if TT_MTT_DEBUG
-                    std::cout << "mtt: " << ttbar_sols.back().p4.M() << std::endl;
-#endif
-                }
-
-                // Sort solutions by increasing order of mtt
-                std::sort(ttbar_sols.begin(), ttbar_sols.end(), [](const TTBar& a, const TTBar& b) {
-                            return a.p4.M() < b.p4.M();
-                        });
-
-
-                ttbar_event_sols.push_back(ttbar_sols);
-              }
-
-              ttbar[idx_comb_all] = ttbar_event_sols;
-            }
-          }
-        }
-      }
-    }
-  }
-
   ///////////////////////////
   //       TRIGGER         //
   ///////////////////////////

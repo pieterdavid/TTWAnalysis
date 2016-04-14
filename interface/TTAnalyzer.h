@@ -91,8 +91,6 @@ class TTAnalyzer: public Framework::Analyzer {
         BRANCH(diLepDiJetsMet_DRCut, std::vector<std::vector<uint16_t>>); 
         BRANCH(diLepDiBJetsMet_DRCut_BWP_PtOrdered, std::vector<std::vector<uint16_t>>);
         BRANCH(diLepDiBJetsMet_DRCut_BWP_CSVv2Ordered, std::vector<std::vector<uint16_t>>);
-        
-        BRANCH(ttbar, std::vector<std::vector<std::vector<TTAnalysis::TTBar>>>);
 
         // Gen matching. All indexes are from the `genParticles` collection
         BRANCH(genParticles, std::vector<TTAnalysis::GenParticle>);
@@ -183,8 +181,6 @@ class TTAnalyzer: public Framework::Analyzer {
         const float m_jetCSVv2L, m_jetCSVv2M, m_jetCSVv2T;
 
         const float m_hltDRCut, m_hltDPtCut;
-
-        std::shared_ptr<NeutrinosSolver> m_neutrinos_solver;
 
         static inline bool muonIDAccessor(const MuonsProducer& muons, const uint16_t index, const std::string& muonID){
             if(index >= muons.p4.size())
