@@ -3,7 +3,7 @@
 #include <cp3_llbb/Framework/interface/HLTProducer.h>
 
 #include <cp3_llbb/TTWAnalysis/interface/TTWDileptonCategories.h>
-#include <cp3_llbb/TTWAnalysis/interface/TTAnalyzer.h>
+#include <cp3_llbb/TTWAnalysis/interface/TTWAnalyzer.h>
 
 #include <cp3_llbb/TTWAnalysis/interface/Types.h>
 #include <cp3_llbb/TTWAnalysis/interface/Indices.h>
@@ -20,7 +20,7 @@ bool ElElCategory::event_in_category_pre_analyzers(const ProducersManager& produ
 
 bool ElElCategory::event_in_category_post_analyzers(const ProducersManager& producers, const AnalyzersManager& analyzers) const {
   
-  const TTAnalyzer& tt = analyzers.get<TTAnalyzer>("ttW");
+  const TTWAnalyzer& tt = analyzers.get<TTWAnalyzer>("ttW");
 
   // It at least one DiLepton of highest Pt and of type ElEl among all ID pairs is found, keep event in this category
 
@@ -69,7 +69,7 @@ void ElElCategory::register_cuts(CutManager& manager) {
 
 void ElElCategory::evaluate_cuts_post_analyzers(CutManager& manager, const ProducersManager& producers, const AnalyzersManager& analyzers) const {
   
-  const TTAnalyzer& tt = analyzers.get<TTAnalyzer>("ttW");
+  const TTWAnalyzer& tt = analyzers.get<TTWAnalyzer>("ttW");
   const HLTProducer& hlt = producers.get<HLTProducer>("hlt");
 
   for(const LepID::LepID& id1: LepID::it) {
@@ -128,7 +128,7 @@ bool ElMuCategory::event_in_category_pre_analyzers(const ProducersManager& produ
 
 bool ElMuCategory::event_in_category_post_analyzers(const ProducersManager& producers, const AnalyzersManager& analyzers) const {
   
-  const TTAnalyzer& tt = analyzers.get<TTAnalyzer>("ttW");
+  const TTWAnalyzer& tt = analyzers.get<TTWAnalyzer>("ttW");
 
   // It at least one DiLepton of highest Pt and of type ElMu among all ID pairs is found, keep event in this category
 
@@ -177,7 +177,7 @@ void ElMuCategory::register_cuts(CutManager& manager) {
 
 void ElMuCategory::evaluate_cuts_post_analyzers(CutManager& manager, const ProducersManager& producers, const AnalyzersManager& analyzers) const {
   
-  const TTAnalyzer& tt = analyzers.get<TTAnalyzer>("ttW");
+  const TTWAnalyzer& tt = analyzers.get<TTWAnalyzer>("ttW");
   const HLTProducer& hlt = producers.get<HLTProducer>("hlt");
 
   for(const LepID::LepID& id1: LepID::it) {
@@ -236,7 +236,7 @@ bool MuElCategory::event_in_category_pre_analyzers(const ProducersManager& produ
 
 bool MuElCategory::event_in_category_post_analyzers(const ProducersManager& producers, const AnalyzersManager& analyzers) const {
   
-  const TTAnalyzer& tt = analyzers.get<TTAnalyzer>("ttW");
+  const TTWAnalyzer& tt = analyzers.get<TTWAnalyzer>("ttW");
 
   // It at least one DiLepton of highest Pt and of type MuEl among all ID pairs is found, keep event in this category
 
@@ -285,7 +285,7 @@ void MuElCategory::register_cuts(CutManager& manager) {
 
 void MuElCategory::evaluate_cuts_post_analyzers(CutManager& manager, const ProducersManager& producers, const AnalyzersManager& analyzers) const {
   
-  const TTAnalyzer& tt = analyzers.get<TTAnalyzer>("ttW");
+  const TTWAnalyzer& tt = analyzers.get<TTWAnalyzer>("ttW");
   const HLTProducer& hlt = producers.get<HLTProducer>("hlt");
 
   for(const LepID::LepID& id1: LepID::it) {
@@ -343,7 +343,7 @@ bool MuMuCategory::event_in_category_pre_analyzers(const ProducersManager& produ
 
 bool MuMuCategory::event_in_category_post_analyzers(const ProducersManager& producers, const AnalyzersManager& analyzers) const {
   
-  const TTAnalyzer& tt = analyzers.get<TTAnalyzer>("ttW");
+  const TTWAnalyzer& tt = analyzers.get<TTWAnalyzer>("ttW");
 
   // It at least one DiLepton of highest Pt and of type MuMu among all ID pairs is found, keep event in this category
 
@@ -392,7 +392,7 @@ void MuMuCategory::register_cuts(CutManager& manager) {
 
 void MuMuCategory::evaluate_cuts_post_analyzers(CutManager& manager, const ProducersManager& producers, const AnalyzersManager& analyzers) const {
   
-  const TTAnalyzer& tt = analyzers.get<TTAnalyzer>("ttW");
+  const TTWAnalyzer& tt = analyzers.get<TTWAnalyzer>("ttW");
   const HLTProducer& hlt = producers.get<HLTProducer>("hlt");
 
   for(const LepID::LepID& id1: LepID::it) {

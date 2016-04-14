@@ -12,9 +12,9 @@
 #include <cp3_llbb/TTWAnalysis/interface/Types.h>
 #include <cp3_llbb/TTWAnalysis/interface/Tools.h>
 
-class TTAnalyzer: public Framework::Analyzer {
+class TTWAnalyzer: public Framework::Analyzer {
     public:
-        TTAnalyzer(const std::string& name, const ROOT::TreeGroup& tree_, const edm::ParameterSet& config):
+        TTWAnalyzer(const std::string& name, const ROOT::TreeGroup& tree_, const edm::ParameterSet& config):
             Analyzer(name, tree_, config),
 
             // Not untracked as these parameters are mandatory

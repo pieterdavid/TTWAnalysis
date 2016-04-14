@@ -2,7 +2,7 @@
 #include <cp3_llbb/TTWAnalysis/interface/Types.h>
 #include <cp3_llbb/TTWAnalysis/interface/Tools.h>
 #include <cp3_llbb/TTWAnalysis/interface/GenStatusFlags.h>
-#include <cp3_llbb/TTWAnalysis/interface/TTAnalyzer.h>
+#include <cp3_llbb/TTWAnalysis/interface/TTWAnalyzer.h>
 #include <cp3_llbb/TTWAnalysis/interface/TTWDileptonCategories.h>
 
 #include <cp3_llbb/Framework/interface/MuonsProducer.h>
@@ -25,7 +25,7 @@ float TTWAnalysis::DeltaEta(const myLorentzVector& v1, const myLorentzVector& v2
   return std::abs(v1.Eta() - v2.Eta());
 }
 
-void TTAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& setup, const ProducersManager& producers, const AnalyzersManager& analyzers, const CategoryManager& categories) {
+void TTWAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& setup, const ProducersManager& producers, const AnalyzersManager& analyzers, const CategoryManager& categories) {
   
   #ifdef _TT_DEBUG_
     std::cout << "Begin event." << std::endl;
@@ -1163,7 +1163,7 @@ after_hlt_matching:
 
 }
 
-void TTAnalyzer::registerCategories(CategoryManager& manager, const edm::ParameterSet& config) {
+void TTWAnalyzer::registerCategories(CategoryManager& manager, const edm::ParameterSet& config) {
   manager.new_category<TTWAnalysis::ElElCategory>("elel", "Category with leading leptons as two electrons", config);
   manager.new_category<TTWAnalysis::ElMuCategory>("elmu", "Category with leading leptons as electron, muon", config);
   manager.new_category<TTWAnalysis::MuElCategory>("muel", "Category with leading leptons as muon, electron", config);
@@ -1171,4 +1171,4 @@ void TTAnalyzer::registerCategories(CategoryManager& manager, const edm::Paramet
 }
 
 #include <FWCore/PluginManager/interface/PluginFactory.h>
-DEFINE_EDM_PLUGIN(ExTreeMakerAnalyzerFactory, TTAnalyzer, "ttw_analyzer");
+DEFINE_EDM_PLUGIN(ExTreeMakerAnalyzerFactory, TTWAnalyzer, "ttw_analyzer");
