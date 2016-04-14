@@ -4,7 +4,7 @@
 #include <array>
 #include <string>
 
-namespace TTAnalysis {
+namespace TTWAnalysis {
   
   // Lepton IDs
   namespace LepID {

@@ -9,8 +9,8 @@
 #include <cp3_llbb/Framework/interface/JetsProducer.h>
 #include <cp3_llbb/Framework/interface/Analyzer.h>
 
-#include <cp3_llbb/TTAnalysis/interface/Types.h>
-#include <cp3_llbb/TTAnalysis/interface/Tools.h>
+#include <cp3_llbb/TTWAnalysis/interface/Types.h>
+#include <cp3_llbb/TTWAnalysis/interface/Tools.h>
 
 class TTAnalyzer: public Framework::Analyzer {
     public:
@@ -57,13 +57,13 @@ class TTAnalyzer: public Framework::Analyzer {
         BRANCH(electrons_IDIso, std::vector<std::vector<uint16_t>>);
         BRANCH(muons_IDIso, std::vector<std::vector<uint16_t>>);
 
-        BRANCH(leptons, std::vector<TTAnalysis::Lepton>);
+        BRANCH(leptons, std::vector<TTWAnalysis::Lepton>);
         BRANCH(leptons_IDIso, std::vector<std::vector<uint16_t>>);
 
-        BRANCH(diLeptons, std::vector<TTAnalysis::DiLepton>);
+        BRANCH(diLeptons, std::vector<TTWAnalysis::DiLepton>);
         BRANCH(diLeptons_IDIso, std::vector<std::vector<uint16_t>>);
 
-        BRANCH(selJets, std::vector<TTAnalysis::Jet>);
+        BRANCH(selJets, std::vector<TTWAnalysis::Jet>);
         BRANCH(selJets_selID, std::vector<uint16_t>);
         // ex.: selectedJets_..._DRCut[X][0] is the highest Pt selected jet with minDRjl>0.3 taking into account ID/Iso-X Leptons
         BRANCH(selJets_selID_DRCut, std::vector<std::vector<uint16_t>>);
@@ -71,7 +71,7 @@ class TTAnalyzer: public Framework::Analyzer {
         BRANCH(selBJets_DRCut_BWP_PtOrdered, std::vector<std::vector<uint16_t>>);
         BRANCH(selBJets_DRCut_BWP_CSVv2Ordered, std::vector<std::vector<uint16_t>>);
 
-        BRANCH(diJets, std::vector<TTAnalysis::DiJet>);
+        BRANCH(diJets, std::vector<TTWAnalysis::DiJet>);
         // ex.: diJets_DRCut[X][0] is first diJet with minDRjl>0.3 taking into account ID/Iso-X Leptons
         BRANCH(diJets_DRCut, std::vector<std::vector<uint16_t>>); 
         // ex.: diBJets_..._CSVv2Ordered[X][0] is the b-jet pair with highest CSVv2 values and with minDRjl>0.3 taking into account the leptonID/Iso/Btag-X combination
@@ -80,20 +80,20 @@ class TTAnalyzer: public Framework::Analyzer {
 
         // For all the following: indices are combinations of LeptonID/LeptonIso/(B-tagging working point)
 
-        BRANCH(diLepDiJets, std::vector<TTAnalysis::DiLepDiJet>);
+        BRANCH(diLepDiJets, std::vector<TTWAnalysis::DiLepDiJet>);
         
         BRANCH(diLepDiJets_DRCut, std::vector<std::vector<uint16_t>>); // di-leptons of combined ID/Iso with di-jets built out of jets having minDRjl>cut taking into account lepton ID/Iso corresponding to the loosest combination of the two leptons of the object
         BRANCH(diLepDiBJets_DRCut_BWP_PtOrdered, std::vector<std::vector<uint16_t>>);
         BRANCH(diLepDiBJets_DRCut_BWP_CSVv2Ordered, std::vector<std::vector<uint16_t>>);
 
-        BRANCH(diLepDiJetsMet, std::vector<TTAnalysis::DiLepDiJetMet>);
+        BRANCH(diLepDiJetsMet, std::vector<TTWAnalysis::DiLepDiJetMet>);
         
         BRANCH(diLepDiJetsMet_DRCut, std::vector<std::vector<uint16_t>>); 
         BRANCH(diLepDiBJetsMet_DRCut_BWP_PtOrdered, std::vector<std::vector<uint16_t>>);
         BRANCH(diLepDiBJetsMet_DRCut_BWP_CSVv2Ordered, std::vector<std::vector<uint16_t>>);
 
         // Gen matching. All indexes are from the `genParticles` collection
-        BRANCH(genParticles, std::vector<TTAnalysis::GenParticle>);
+        BRANCH(genParticles, std::vector<TTWAnalysis::GenParticle>);
         BRANCH(gen_t, int16_t); // Index of the top quark
         BRANCH(gen_t_beforeFSR, int16_t); // Index of the top quark, before any FSR
         BRANCH(gen_tbar, int16_t); // Index of the anti-top quark

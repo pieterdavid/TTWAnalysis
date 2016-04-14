@@ -1,9 +1,9 @@
-#include <cp3_llbb/TTAnalysis/interface/Defines.h>
-#include <cp3_llbb/TTAnalysis/interface/Types.h>
-#include <cp3_llbb/TTAnalysis/interface/Tools.h>
-#include <cp3_llbb/TTAnalysis/interface/GenStatusFlags.h>
-#include <cp3_llbb/TTAnalysis/interface/TTAnalyzer.h>
-#include <cp3_llbb/TTAnalysis/interface/TTDileptonCategories.h>
+#include <cp3_llbb/TTWAnalysis/interface/Defines.h>
+#include <cp3_llbb/TTWAnalysis/interface/Types.h>
+#include <cp3_llbb/TTWAnalysis/interface/Tools.h>
+#include <cp3_llbb/TTWAnalysis/interface/GenStatusFlags.h>
+#include <cp3_llbb/TTWAnalysis/interface/TTAnalyzer.h>
+#include <cp3_llbb/TTWAnalysis/interface/TTDileptonCategories.h>
 
 #include <cp3_llbb/Framework/interface/MuonsProducer.h>
 #include <cp3_llbb/Framework/interface/ElectronsProducer.h>
@@ -19,9 +19,9 @@
 // To access VectorUtil::DeltaR() more easily
 using namespace ROOT::Math;
 
-using namespace TTAnalysis;
+using namespace TTWAnalysis;
 
-float TTAnalysis::DeltaEta(const myLorentzVector& v1, const myLorentzVector& v2) {
+float TTWAnalysis::DeltaEta(const myLorentzVector& v1, const myLorentzVector& v2) {
   return std::abs(v1.Eta() - v2.Eta());
 }
 
@@ -200,7 +200,7 @@ void TTAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& setup, 
       }
       
       m_diLepton.DR = VectorUtil::DeltaR(l1.p4, l2.p4);
-      m_diLepton.DEta = TTAnalysis::DeltaEta(l1.p4, l2.p4);
+      m_diLepton.DEta = TTWAnalysis::DeltaEta(l1.p4, l2.p4);
       m_diLepton.DPhi = VectorUtil::DeltaPhi(l1.p4, l2.p4);
 
       diLeptons.push_back(m_diLepton);
@@ -1164,10 +1164,10 @@ after_hlt_matching:
 }
 
 void TTAnalyzer::registerCategories(CategoryManager& manager, const edm::ParameterSet& config) {
-  manager.new_category<TTAnalysis::ElElCategory>("elel", "Category with leading leptons as two electrons", config);
-  manager.new_category<TTAnalysis::ElMuCategory>("elmu", "Category with leading leptons as electron, muon", config);
-  manager.new_category<TTAnalysis::MuElCategory>("muel", "Category with leading leptons as muon, electron", config);
-  manager.new_category<TTAnalysis::MuMuCategory>("mumu", "Category with leading leptons as two muons", config);
+  manager.new_category<TTWAnalysis::ElElCategory>("elel", "Category with leading leptons as two electrons", config);
+  manager.new_category<TTWAnalysis::ElMuCategory>("elmu", "Category with leading leptons as electron, muon", config);
+  manager.new_category<TTWAnalysis::MuElCategory>("muel", "Category with leading leptons as muon, electron", config);
+  manager.new_category<TTWAnalysis::MuMuCategory>("mumu", "Category with leading leptons as two muons", config);
 }
 
 #include <FWCore/PluginManager/interface/PluginFactory.h>

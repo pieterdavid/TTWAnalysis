@@ -3,6 +3,6 @@
 <use name="FWCore/ParameterSet"/>
 <use name="cp3_llbb/Framework"/>
 <use name="cp3_llbb/TreeWrapper"/>
-<use name="cp3_llbb/TTAnalysis"/>
+<use name="cp3_llbb/TTWAnalysis"/>
 <flags EDM_PLUGIN="1"/>
 <flags CXXFLAGS="-g"/>

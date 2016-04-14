@@ -1,8 +1,8 @@
 #include <string>
 
-#include <cp3_llbb/TTAnalysis/interface/Indices.h>
+#include <cp3_llbb/TTWAnalysis/interface/Indices.h>
 
-namespace TTAnalysis {
+namespace TTWAnalysis {
   
   // Combination of Lepton ID + Lepton Isolation for a single lepton
   uint16_t LepIDIso(const LepID::LepID& id, const LepIso::LepIso& iso){

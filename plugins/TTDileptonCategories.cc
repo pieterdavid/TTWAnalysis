@@ -2,13 +2,13 @@
 #include <cp3_llbb/Framework/interface/ElectronsProducer.h>
 #include <cp3_llbb/Framework/interface/HLTProducer.h>
 
-#include <cp3_llbb/TTAnalysis/interface/TTDileptonCategories.h>
-#include <cp3_llbb/TTAnalysis/interface/TTAnalyzer.h>
+#include <cp3_llbb/TTWAnalysis/interface/TTDileptonCategories.h>
+#include <cp3_llbb/TTWAnalysis/interface/TTAnalyzer.h>
 
-#include <cp3_llbb/TTAnalysis/interface/Types.h>
-#include <cp3_llbb/TTAnalysis/interface/Indices.h>
+#include <cp3_llbb/TTWAnalysis/interface/Types.h>
+#include <cp3_llbb/TTWAnalysis/interface/Indices.h>
 
-using namespace TTAnalysis;
+using namespace TTWAnalysis;
 
 // ***** ***** *****
 // Dilepton El-El category

@@ -7,7 +7,7 @@
 #include <cp3_llbb/Framework/interface/Category.h>
 #include <cp3_llbb/Framework/interface/HLTProducer.h>
 
-namespace TTAnalysis{
+namespace TTWAnalysis{
 
 class DileptonCategory: public Category {
   public:

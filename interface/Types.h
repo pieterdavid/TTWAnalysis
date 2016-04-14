@@ -8,12 +8,12 @@
 #include <Math/LorentzVector.h>
 #include <Math/VectorUtil.h>
 
-#include <cp3_llbb/TTAnalysis/interface/Indices.h>
+#include <cp3_llbb/TTWAnalysis/interface/Indices.h>
 
 // Needed because of gcc bug when using typedef and std::map
 #define myLorentzVector ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiE4D<float>>
 
-namespace TTAnalysis {
+namespace TTWAnalysis {
 
   // Forward declaration to use this here
   float DeltaEta(const myLorentzVector &v1, const myLorentzVector &v2);
@@ -125,7 +125,7 @@ namespace TTAnalysis {
       {}
     
     std::pair<uint16_t, uint16_t> idxs; // stores indices to jets array
-    std::pair<uint16_t, uint16_t> jidxs; // stores indices to TTAnalysis::Jet array
+    std::pair<uint16_t, uint16_t> jidxs; // stores indices to TTWAnalysis::Jet array
     std::vector<float> minDRjl_lepIDIso; // defined for each combination of a lepton ID and isolation
     std::vector<bool> BWP; // combination of two b-tagging working points
     float DR;
