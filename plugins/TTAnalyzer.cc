@@ -1171,4 +1171,4 @@ void TTAnalyzer::registerCategories(CategoryManager& manager, const edm::Paramet
 }
 
 #include <FWCore/PluginManager/interface/PluginFactory.h>
-DEFINE_EDM_PLUGIN(ExTreeMakerAnalyzerFactory, TTAnalyzer, "tt_analyzer");
+DEFINE_EDM_PLUGIN(ExTreeMakerAnalyzerFactory, TTAnalyzer, "ttw_analyzer");
