@@ -3,7 +3,7 @@
 #include <cp3_llbb/TTWAnalysis/interface/Tools.h>
 #include <cp3_llbb/TTWAnalysis/interface/GenStatusFlags.h>
 #include <cp3_llbb/TTWAnalysis/interface/TTAnalyzer.h>
-#include <cp3_llbb/TTWAnalysis/interface/TTDileptonCategories.h>
+#include <cp3_llbb/TTWAnalysis/interface/TTWDileptonCategories.h>
 
 #include <cp3_llbb/Framework/interface/MuonsProducer.h>
 #include <cp3_llbb/Framework/interface/ElectronsProducer.h>

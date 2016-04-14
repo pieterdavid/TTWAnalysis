@@ -2,7 +2,7 @@
 #include <cp3_llbb/Framework/interface/ElectronsProducer.h>
 #include <cp3_llbb/Framework/interface/HLTProducer.h>
 
-#include <cp3_llbb/TTWAnalysis/interface/TTDileptonCategories.h>
+#include <cp3_llbb/TTWAnalysis/interface/TTWDileptonCategories.h>
 #include <cp3_llbb/TTWAnalysis/interface/TTAnalyzer.h>
 
 #include <cp3_llbb/TTWAnalysis/interface/Types.h>
