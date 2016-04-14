@@ -24,7 +24,7 @@ framework.addAnalyzer('ttW', cms.PSet(
             electronLooseIDName = cms.untracked.string('cutBasedElectronID-Spring15-25ns-V1-standalone-loose'),
             electronMediumIDName = cms.untracked.string('cutBasedElectronID-Spring15-25ns-V1-standalone-medium'),
             electronTightIDName = cms.untracked.string('cutBasedElectronID-Spring15-25ns-V1-standalone-tight'),
-            
+
             muonPtCut = cms.untracked.double(20),
             muonEtaCut = cms.untracked.double(2.4),
             muonLooseIsoCut = cms.untracked.double(.25), # Loose cut recommended for dilepton analysis

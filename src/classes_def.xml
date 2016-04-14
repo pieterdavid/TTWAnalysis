@@ -1,5 +1,5 @@
 <lcgdict>
-  <class name="TTWAnalysis::BaseObject"/> 
+  <class name="TTWAnalysis::BaseObject"/>
   <class name="std::vector<TTWAnalysis::BaseObject>"/>
   <class name="TTWAnalysis::Lepton">
     <field name="hlt_already_tried_matching" transient="true"/>

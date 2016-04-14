@@ -5,7 +5,7 @@
 #include <string>
 
 namespace TTWAnalysis {
-  
+
   // Lepton IDs
   namespace LepID {
     enum LepID{ V, L, M, T, Count };
@@ -14,7 +14,7 @@ namespace TTWAnalysis {
     // Is useful in categories to construct cut strings out of each working point
     const std::map<LepID, std::string> map = { {V, "V"}, {L, "L"}, {M, "M"}, {T, "T"} };
   }
-  
+
   // Lepton Isolation
   namespace LepIso {
     enum LepIso{ L, T, Count };
@@ -48,7 +48,7 @@ namespace TTWAnalysis {
   // Combination of Jet IDs for two jets (NOTE: NOT USED FOR NOW)
   uint16_t JetJetID(const JetID::JetID& id1, const JetID::JetID& id2);
   std::string JetJetIDStr(const JetID::JetID& id1, const JetID::JetID& id2);
-  
+
   // B-tagging working points
   namespace BWP {
     enum BWP{ L, M, T, Count };
@@ -59,7 +59,7 @@ namespace TTWAnalysis {
   // Combination of Jet ID and B-tagging working point (NOTE: NOT USED FOR NOW)
   uint16_t JetIDBWP(const JetID::JetID& id, const BWP::BWP& wp);
   std::string JetIDBWPStr(const JetID::JetID& id, const BWP::BWP& wp);
-  
+
   // Combination of Lepton ID + Lepton Isolation (one lepton) and B-tagging working point for one jet
   uint16_t LepIDIsoJetBWP(const LepID::LepID& id, const LepIso::LepIso& iso, const BWP::BWP& wp);
   std::string LepIDIsoJetBWPStr(const LepID::LepID& id, const LepIso::LepIso& iso, const BWP::BWP& wp);
@@ -71,11 +71,11 @@ namespace TTWAnalysis {
   // Combination of Jet ID and B-tagging working points for two jets (NOTE: NOT USED FOR NOW)
   uint16_t JetJetIDBWP(const JetID::JetID& id1, const BWP::BWP& wp1, const JetID::JetID& id2, const BWP::BWP& wp2);
   std::string JetJetIDBWPStr(const JetID::JetID& id1, const BWP::BWP wp1, const JetID::JetID& id2, const BWP::BWP wp2);
-  
+
   // Combination of Lepton ID + Lepton Isolation (one lepton) and B-tagging working points for two jets
   uint16_t LepIDIsoJetJetBWP(const LepID::LepID& id, const LepIso::LepIso& iso, const BWP::BWP& wp1, const BWP::BWP& wp2);
   std::string LepIDIsoJetJetBWPStr(const LepID::LepID& id, const LepIso::LepIso& iso, const BWP::BWP& wp1, const BWP::BWP& wp2);
-  
+
   // Combination of Lepton ID, Lepton Isolation, and B-tagging working points for a two-lepton-two-b-jets object
   uint16_t LepLepIDIsoJetJetBWP(const LepID::LepID& id1, const LepIso::LepIso& iso1, const LepID::LepID& id2, const LepIso::LepIso& iso2, const BWP::BWP& wp1, const BWP::BWP& wp2);
   std::string LepLepIDIsoJetJetBWPStr(const LepID::LepID& id1, const LepIso::LepIso& iso1, const LepID::LepID& id2, const LepIso::LepIso& iso2, const BWP::BWP& wp1, const BWP::BWP& wp2);

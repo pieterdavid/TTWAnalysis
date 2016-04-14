@@ -40,11 +40,11 @@ namespace TTWAnalysis {
       iso(LepIso::Count, false)
     {}
     Lepton(myLorentzVector p4, uint16_t idx, uint16_t charge, bool isEl, bool isMu, bool isVeto = false, bool isLoose = false, bool isMedium = false, bool isTight = false, float isoValue = 0, bool isoLoose = false, bool isoTight = false):
-      BaseObject(p4), 
-      idx(idx), 
+      BaseObject(p4),
+      idx(idx),
       charge(charge),
       isoValue(isoValue),
-      isEl(isEl), 
+      isEl(isEl),
       isMu(isMu),
       ID(LepID::Count, false),
       iso(LepIso::Count, false)
@@ -64,7 +64,7 @@ namespace TTWAnalysis {
           iso[LepIso::L] = true;
         }
       }
-    
+
     uint16_t idx; // stores index to electron/muon arrays
     uint16_t charge;
     float isoValue;
@@ -84,13 +84,13 @@ namespace TTWAnalysis {
         return charge * id;
     }
   };
-  
+
   struct DiLepton: BaseObject {
     DiLepton():
       ID(LepID::Count*LepID::Count, false),
       iso(LepIso::Count*LepIso::Count, false)
       {}
-    
+
     std::pair<uint16_t, uint16_t> idxs; // stores indices to electron/muon arrays
     std::pair<uint16_t, uint16_t> lidxs; // stores indices to Lepton array
     std::pair<int16_t, int16_t> hlt_idxs; // Stores indices of matched online objects
@@ -103,7 +103,7 @@ namespace TTWAnalysis {
     float DEta;
     float DPhi;
   };
- 
+
   struct Jet: BaseObject {
     Jet():
       ID(JetID::Count, false),
@@ -117,13 +117,13 @@ namespace TTWAnalysis {
     float CSVv2;
     std::vector<bool> BWP;
   };
-  
+
   struct DiJet: BaseObject {
     DiJet():
       minDRjl_lepIDIso(LepID::Count*LepIso::Count, std::numeric_limits<float>::max()),
       BWP(BWP::Count*BWP::Count, false)
       {}
-    
+
     std::pair<uint16_t, uint16_t> idxs; // stores indices to jets array
     std::pair<uint16_t, uint16_t> jidxs; // stores indices to TTWAnalysis::Jet array
     std::vector<float> minDRjl_lepIDIso; // defined for each combination of a lepton ID and isolation
@@ -155,7 +155,7 @@ namespace TTWAnalysis {
     uint16_t diJetIdx;
 
     float DR_ll_jj, DEta_ll_jj, DPhi_ll_jj;
-    
+
     float minDRjl, maxDRjl;
     float minDEtajl, maxDEtajl;
     float minDPhijl, maxDPhijl;
@@ -174,18 +174,18 @@ namespace TTWAnalysis {
       DiLepDiJet::maxDEtajl = diLepDiJet.maxDEtajl;
       DiLepDiJet::minDPhijl = diLepDiJet.minDPhijl;
       DiLepDiJet::maxDPhijl = diLepDiJet.maxDPhijl;
-      
+
       p4 += MetP4;
 
       DR_ll_Met = ROOT::Math::VectorUtil::DeltaR(diLepton->p4, MetP4);
       DR_jj_Met = ROOT::Math::VectorUtil::DeltaR(diJet->p4, MetP4);
-      
+
       DEta_ll_Met = DeltaEta(diLepton->p4, MetP4);
       DEta_jj_Met = DeltaEta(diJet->p4, MetP4);
-      
+
       DPhi_ll_Met = ROOT::Math::VectorUtil::DeltaPhi(diLepton->p4, MetP4);
       DPhi_jj_Met = ROOT::Math::VectorUtil::DeltaPhi(diJet->p4, MetP4);
-      
+
       DR_lljj_Met = ROOT::Math::VectorUtil::DeltaR(diLepton->p4 + diJet->p4, MetP4);
       DEta_lljj_Met = DeltaEta(diLepton->p4 + diJet->p4, MetP4);
       DPhi_lljj_Met = ROOT::Math::VectorUtil::DeltaPhi(diLepton->p4 + diJet->p4, MetP4);

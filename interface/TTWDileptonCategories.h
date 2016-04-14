@@ -57,13 +57,13 @@ class DileptonCategory: public Category {
 
     enum class HLT { DoubleMuon, DoubleEG, MuonEG };
 
-    // Check that the hlt objects at indices hltIdx1, hltIdx2 have fired at least one and the same 
+    // Check that the hlt objects at indices hltIdx1, hltIdx2 have fired at least one and the same
     // of the trigger paths in the group specified by pathGroup.
     bool checkHLT(const HLTProducer& hlt, uint16_t hltIdx1, uint16_t hltIdx2, HLT pathGroup) const {
       const std::vector<boost::regex>* chosenPathGroup(nullptr);
 
       switch(pathGroup){
-        
+
         case HLT::DoubleMuon:
           chosenPathGroup = &m_HLTDoubleMuonRegex;
           break;
@@ -78,7 +78,7 @@ class DileptonCategory: public Category {
 
         default:
           break;
-      
+
       }
 
       if( !chosenPathGroup || hltIdx1 >= hlt.object_paths.size() || hltIdx2 >= hlt.object_paths.size() )
@@ -87,24 +87,24 @@ class DileptonCategory: public Category {
       std::vector<std::string> matchedTriggersObj1, matchedTriggersObj2, commonMatchedTriggers;
 
       for(const auto& paths: *chosenPathGroup){
-        
+
         for(const auto& objHlt: hlt.object_paths[hltIdx1]){
           if( boost::regex_match(objHlt, paths) )
             matchedTriggersObj1.push_back(objHlt);
         }
-        
+
         for(const auto& objHlt: hlt.object_paths[hltIdx2]){
           if( boost::regex_match(objHlt, paths) )
             matchedTriggersObj2.push_back(objHlt);
         }
-      
+
       }
 
       std::set_intersection( matchedTriggersObj1.begin(), matchedTriggersObj1.end(), matchedTriggersObj2.begin(), matchedTriggersObj2.end(), std::back_inserter(commonMatchedTriggers));
 
       return commonMatchedTriggers.size() > 0;
     }
-      
+
 };
 
 class ElElCategory: public DileptonCategory {

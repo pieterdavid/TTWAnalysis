@@ -19,7 +19,7 @@ bool ElElCategory::event_in_category_pre_analyzers(const ProducersManager& produ
 }
 
 bool ElElCategory::event_in_category_post_analyzers(const ProducersManager& producers, const AnalyzersManager& analyzers) const {
-  
+
   const TTWAnalyzer& tt = analyzers.get<TTWAnalyzer>("ttW");
 
   // It at least one DiLepton of highest Pt and of type ElEl among all ID pairs is found, keep event in this category
@@ -28,13 +28,13 @@ bool ElElCategory::event_in_category_post_analyzers(const ProducersManager& prod
     for(const LepID::LepID& id2: LepID::it) {
       for(const LepIso::LepIso& iso1: LepIso::it) {
         for(const LepIso::LepIso& iso2: LepIso::it) {
-          
+
           uint16_t comb = LepLepIDIso(id1, iso1, id2, iso2);
           if(tt.diLeptons_IDIso[comb].size() >= 1) {
             if( tt.diLeptons[ tt.diLeptons_IDIso[comb][0] ].isElEl )
               return true;
           }
-        
+
         }
       }
     }
@@ -44,15 +44,15 @@ bool ElElCategory::event_in_category_post_analyzers(const ProducersManager& prod
 }
 
 void ElElCategory::register_cuts(CutManager& manager) {
-  
+
   for(const LepID::LepID& id1: LepID::it) {
     for(const LepID::LepID& id2: LepID::it) {
       for(const LepIso::LepIso& iso1: LepIso::it) {
         for(const LepIso::LepIso& iso2: LepIso::it) {
-          
+
           std::string postFix("_");
           postFix += LepLepIDIsoStr(id1, iso1, id2, iso2);
-          
+
           manager.new_cut(baseStrCategory + postFix, baseStrCategory + postFix);
           manager.new_cut(baseStrExtraDiLeptonVeto + postFix, baseStrExtraDiLeptonVeto + postFix);
           manager.new_cut(baseStrDiLeptonTriggerMatch + postFix, baseStrDiLeptonTriggerMatch + postFix);
@@ -68,7 +68,7 @@ void ElElCategory::register_cuts(CutManager& manager) {
 }
 
 void ElElCategory::evaluate_cuts_post_analyzers(CutManager& manager, const ProducersManager& producers, const AnalyzersManager& analyzers) const {
-  
+
   const TTWAnalyzer& tt = analyzers.get<TTWAnalyzer>("ttW");
   const HLTProducer& hlt = producers.get<HLTProducer>("hlt");
 
@@ -76,14 +76,14 @@ void ElElCategory::evaluate_cuts_post_analyzers(CutManager& manager, const Produ
     for(const LepID::LepID& id2: LepID::it) {
       for(const LepIso::LepIso& iso1: LepIso::it) {
         for(const LepIso::LepIso& iso2: LepIso::it) {
-          
+
           std::string postFix("_");
           postFix += LepLepIDIsoStr(id1, iso1, id2, iso2);
           uint16_t comb = LepLepIDIso(id1, iso1, id2, iso2);
-    
+
           if(tt.diLeptons_IDIso[comb].size() >= 1) {
             const DiLepton& m_diLepton = tt.diLeptons[ tt.diLeptons_IDIso[comb][0] ];
-            
+
             if(m_diLepton.isElEl) {
               manager.pass_cut(baseStrCategory + postFix);
 
@@ -92,21 +92,21 @@ void ElElCategory::evaluate_cuts_post_analyzers(CutManager& manager, const Produ
                 if( checkHLT(hlt, m_diLepton.hlt_idxs.first, m_diLepton.hlt_idxs.second, HLT::DoubleEG) )
                   manager.pass_cut(baseStrDiLeptonTriggerMatch + postFix);
               }
-              
+
               if(m_diLepton.p4.M() > m_MllCutSF)
                 manager.pass_cut(baseStrMllCut + postFix);
-              
+
               if(m_diLepton.p4.M() < m_MllZVetoCutLow || m_diLepton.p4.M() > m_MllZVetoCutHigh)
                 manager.pass_cut(baseStrMllZVetoCut + postFix);
-              
+
               if(m_diLepton.isOS)
                 manager.pass_cut(baseStrDiLeptonIsOS + postFix);
             }
           }
-          
+
           // For electrons, in principe only veto using VetoID.
           // But since the user can access any cut he wants, he can take the IDVV_IsoWhatever cut.
-          if(tt.diLeptons_IDIso[comb].size() >= 2) { 
+          if(tt.diLeptons_IDIso[comb].size() >= 2) {
             manager.pass_cut(baseStrExtraDiLeptonVeto + postFix);
           }
 
@@ -127,7 +127,7 @@ bool ElMuCategory::event_in_category_pre_analyzers(const ProducersManager& produ
 }
 
 bool ElMuCategory::event_in_category_post_analyzers(const ProducersManager& producers, const AnalyzersManager& analyzers) const {
-  
+
   const TTWAnalyzer& tt = analyzers.get<TTWAnalyzer>("ttW");
 
   // It at least one DiLepton of highest Pt and of type ElMu among all ID pairs is found, keep event in this category
@@ -136,13 +136,13 @@ bool ElMuCategory::event_in_category_post_analyzers(const ProducersManager& prod
     for(const LepID::LepID& id2: LepID::it) {
       for(const LepIso::LepIso& iso1: LepIso::it) {
         for(const LepIso::LepIso& iso2: LepIso::it) {
-          
+
           uint16_t comb = LepLepIDIso(id1, iso1, id2, iso2);
           if(tt.diLeptons_IDIso[comb].size() >= 1) {
             if( tt.diLeptons[ tt.diLeptons_IDIso[comb][0] ].isElMu )
               return true;
           }
-        
+
         }
       }
     }
@@ -152,15 +152,15 @@ bool ElMuCategory::event_in_category_post_analyzers(const ProducersManager& prod
 }
 
 void ElMuCategory::register_cuts(CutManager& manager) {
-  
+
   for(const LepID::LepID& id1: LepID::it) {
     for(const LepID::LepID& id2: LepID::it) {
       for(const LepIso::LepIso& iso1: LepIso::it) {
         for(const LepIso::LepIso& iso2: LepIso::it) {
-          
+
           std::string postFix("_");
           postFix += LepLepIDIsoStr(id1, iso1, id2, iso2);
-          
+
           manager.new_cut(baseStrCategory + postFix, baseStrCategory + postFix);
           manager.new_cut(baseStrExtraDiLeptonVeto + postFix, baseStrExtraDiLeptonVeto + postFix);
           manager.new_cut(baseStrDiLeptonTriggerMatch + postFix, baseStrDiLeptonTriggerMatch + postFix);
@@ -176,7 +176,7 @@ void ElMuCategory::register_cuts(CutManager& manager) {
 }
 
 void ElMuCategory::evaluate_cuts_post_analyzers(CutManager& manager, const ProducersManager& producers, const AnalyzersManager& analyzers) const {
-  
+
   const TTWAnalyzer& tt = analyzers.get<TTWAnalyzer>("ttW");
   const HLTProducer& hlt = producers.get<HLTProducer>("hlt");
 
@@ -184,14 +184,14 @@ void ElMuCategory::evaluate_cuts_post_analyzers(CutManager& manager, const Produ
     for(const LepID::LepID& id2: LepID::it) {
       for(const LepIso::LepIso& iso1: LepIso::it) {
         for(const LepIso::LepIso& iso2: LepIso::it) {
-          
+
           std::string postFix("_");
           postFix += LepLepIDIsoStr(id1, iso1, id2, iso2);
           uint16_t comb = LepLepIDIso(id1, iso1, id2, iso2);
-    
+
           if(tt.diLeptons_IDIso[comb].size() >= 1) {
             const DiLepton& m_diLepton = tt.diLeptons[ tt.diLeptons_IDIso[comb][0] ];
-            
+
             if(m_diLepton.isElMu) {
               manager.pass_cut(baseStrCategory + postFix);
 
@@ -200,21 +200,21 @@ void ElMuCategory::evaluate_cuts_post_analyzers(CutManager& manager, const Produ
                 if( checkHLT(hlt, m_diLepton.hlt_idxs.first, m_diLepton.hlt_idxs.second, HLT::MuonEG) )
                   manager.pass_cut(baseStrDiLeptonTriggerMatch + postFix);
               }
-              
+
               if(m_diLepton.p4.M() > m_MllCutDF)
                 manager.pass_cut(baseStrMllCut + postFix);
-              
+
               if(m_diLepton.p4.M() < m_MllZVetoCutLow || m_diLepton.p4.M() > m_MllZVetoCutHigh)
                 manager.pass_cut(baseStrMllZVetoCut + postFix);
-              
+
               if(m_diLepton.isOS)
                 manager.pass_cut(baseStrDiLeptonIsOS + postFix);
             }
           }
-          
+
           // For electrons, in principe only veto using VetoID.
           // But since the user can access any cut he wants, he can take the IDVV_IsoWhatever cut.
-          if(tt.diLeptons_IDIso[comb].size() >= 2) { 
+          if(tt.diLeptons_IDIso[comb].size() >= 2) {
             manager.pass_cut(baseStrExtraDiLeptonVeto + postFix);
           }
 
@@ -235,7 +235,7 @@ bool MuElCategory::event_in_category_pre_analyzers(const ProducersManager& produ
 }
 
 bool MuElCategory::event_in_category_post_analyzers(const ProducersManager& producers, const AnalyzersManager& analyzers) const {
-  
+
   const TTWAnalyzer& tt = analyzers.get<TTWAnalyzer>("ttW");
 
   // It at least one DiLepton of highest Pt and of type MuEl among all ID pairs is found, keep event in this category
@@ -244,13 +244,13 @@ bool MuElCategory::event_in_category_post_analyzers(const ProducersManager& prod
     for(const LepID::LepID& id2: LepID::it) {
       for(const LepIso::LepIso& iso1: LepIso::it) {
         for(const LepIso::LepIso& iso2: LepIso::it) {
-          
+
           uint16_t comb = LepLepIDIso(id1, iso1, id2, iso2);
           if(tt.diLeptons_IDIso[comb].size() >= 1) {
             if( tt.diLeptons[ tt.diLeptons_IDIso[comb][0] ].isMuEl )
               return true;
           }
-        
+
         }
       }
     }
@@ -260,15 +260,15 @@ bool MuElCategory::event_in_category_post_analyzers(const ProducersManager& prod
 }
 
 void MuElCategory::register_cuts(CutManager& manager) {
-  
+
   for(const LepID::LepID& id1: LepID::it) {
     for(const LepID::LepID& id2: LepID::it) {
       for(const LepIso::LepIso& iso1: LepIso::it) {
         for(const LepIso::LepIso& iso2: LepIso::it) {
-          
+
           std::string postFix("_");
           postFix += LepLepIDIsoStr(id1, iso1, id2, iso2);
-          
+
           manager.new_cut(baseStrCategory + postFix, baseStrCategory + postFix);
           manager.new_cut(baseStrExtraDiLeptonVeto + postFix, baseStrExtraDiLeptonVeto + postFix);
           manager.new_cut(baseStrDiLeptonTriggerMatch + postFix, baseStrDiLeptonTriggerMatch + postFix);
@@ -284,7 +284,7 @@ void MuElCategory::register_cuts(CutManager& manager) {
 }
 
 void MuElCategory::evaluate_cuts_post_analyzers(CutManager& manager, const ProducersManager& producers, const AnalyzersManager& analyzers) const {
-  
+
   const TTWAnalyzer& tt = analyzers.get<TTWAnalyzer>("ttW");
   const HLTProducer& hlt = producers.get<HLTProducer>("hlt");
 
@@ -292,14 +292,14 @@ void MuElCategory::evaluate_cuts_post_analyzers(CutManager& manager, const Produ
     for(const LepID::LepID& id2: LepID::it) {
       for(const LepIso::LepIso& iso1: LepIso::it) {
         for(const LepIso::LepIso& iso2: LepIso::it) {
-          
+
           std::string postFix("_");
           postFix += LepLepIDIsoStr(id1, iso1, id2, iso2);
           uint16_t comb = LepLepIDIso(id1, iso1, id2, iso2);
-    
+
           if(tt.diLeptons_IDIso[comb].size() >= 1) {
             const DiLepton& m_diLepton = tt.diLeptons[ tt.diLeptons_IDIso[comb][0] ];
-            
+
             if(m_diLepton.isMuEl) {
               manager.pass_cut(baseStrCategory + postFix);
 
@@ -308,21 +308,21 @@ void MuElCategory::evaluate_cuts_post_analyzers(CutManager& manager, const Produ
                 if( checkHLT(hlt, m_diLepton.hlt_idxs.first, m_diLepton.hlt_idxs.second, HLT::MuonEG) )
                   manager.pass_cut(baseStrDiLeptonTriggerMatch + postFix);
               }
-              
+
               if(m_diLepton.p4.M() > m_MllCutDF)
                 manager.pass_cut(baseStrMllCut + postFix);
-              
+
               if(m_diLepton.p4.M() < m_MllZVetoCutLow || m_diLepton.p4.M() > m_MllZVetoCutHigh)
                 manager.pass_cut(baseStrMllZVetoCut + postFix);
-              
+
               if(m_diLepton.isOS)
                 manager.pass_cut(baseStrDiLeptonIsOS + postFix);
             }
           }
-          
+
           // For electrons, in principe only veto using VetoID.
           // But since the user can access any cut he wants, he can take the IDVV_IsoWhatever cut.
-          if(tt.diLeptons_IDIso[comb].size() >= 2) { 
+          if(tt.diLeptons_IDIso[comb].size() >= 2) {
             manager.pass_cut(baseStrExtraDiLeptonVeto + postFix);
           }
 
@@ -342,7 +342,7 @@ bool MuMuCategory::event_in_category_pre_analyzers(const ProducersManager& produ
 }
 
 bool MuMuCategory::event_in_category_post_analyzers(const ProducersManager& producers, const AnalyzersManager& analyzers) const {
-  
+
   const TTWAnalyzer& tt = analyzers.get<TTWAnalyzer>("ttW");
 
   // It at least one DiLepton of highest Pt and of type MuMu among all ID pairs is found, keep event in this category
@@ -351,13 +351,13 @@ bool MuMuCategory::event_in_category_post_analyzers(const ProducersManager& prod
     for(const LepID::LepID& id2: LepID::it) {
       for(const LepIso::LepIso& iso1: LepIso::it) {
         for(const LepIso::LepIso& iso2: LepIso::it) {
-          
+
           uint16_t comb = LepLepIDIso(id1, iso1, id2, iso2);
           if(tt.diLeptons_IDIso[comb].size() >= 1) {
             if( tt.diLeptons[ tt.diLeptons_IDIso[comb][0] ].isMuMu )
               return true;
           }
-        
+
         }
       }
     }
@@ -367,15 +367,15 @@ bool MuMuCategory::event_in_category_post_analyzers(const ProducersManager& prod
 }
 
 void MuMuCategory::register_cuts(CutManager& manager) {
-  
+
   for(const LepID::LepID& id1: LepID::it) {
     for(const LepID::LepID& id2: LepID::it) {
       for(const LepIso::LepIso& iso1: LepIso::it) {
         for(const LepIso::LepIso& iso2: LepIso::it) {
-          
+
           std::string postFix("_");
           postFix += LepLepIDIsoStr(id1, iso1, id2, iso2);
-          
+
           manager.new_cut(baseStrCategory + postFix, baseStrCategory + postFix);
           manager.new_cut(baseStrExtraDiLeptonVeto + postFix, baseStrExtraDiLeptonVeto + postFix);
           manager.new_cut(baseStrDiLeptonTriggerMatch + postFix, baseStrDiLeptonTriggerMatch + postFix);
@@ -391,7 +391,7 @@ void MuMuCategory::register_cuts(CutManager& manager) {
 }
 
 void MuMuCategory::evaluate_cuts_post_analyzers(CutManager& manager, const ProducersManager& producers, const AnalyzersManager& analyzers) const {
-  
+
   const TTWAnalyzer& tt = analyzers.get<TTWAnalyzer>("ttW");
   const HLTProducer& hlt = producers.get<HLTProducer>("hlt");
 
@@ -399,14 +399,14 @@ void MuMuCategory::evaluate_cuts_post_analyzers(CutManager& manager, const Produ
     for(const LepID::LepID& id2: LepID::it) {
       for(const LepIso::LepIso& iso1: LepIso::it) {
         for(const LepIso::LepIso& iso2: LepIso::it) {
-          
+
           std::string postFix("_");
           postFix += LepLepIDIsoStr(id1, iso1, id2, iso2);
           uint16_t comb = LepLepIDIso(id1, iso1, id2, iso2);
-    
+
           if(tt.diLeptons_IDIso[comb].size() >= 1) {
             const DiLepton& m_diLepton = tt.diLeptons[ tt.diLeptons_IDIso[comb][0] ];
-            
+
             if(m_diLepton.isMuMu) {
               manager.pass_cut(baseStrCategory + postFix);
 
@@ -415,19 +415,19 @@ void MuMuCategory::evaluate_cuts_post_analyzers(CutManager& manager, const Produ
                 if( checkHLT(hlt, m_diLepton.hlt_idxs.first, m_diLepton.hlt_idxs.second, HLT::DoubleMuon) )
                   manager.pass_cut(baseStrDiLeptonTriggerMatch + postFix);
               }
-              
+
               if(m_diLepton.p4.M() > m_MllCutSF)
                 manager.pass_cut(baseStrMllCut + postFix);
-              
+
               if(m_diLepton.p4.M() < m_MllZVetoCutLow || m_diLepton.p4.M() > m_MllZVetoCutHigh)
                 manager.pass_cut(baseStrMllZVetoCut + postFix);
-              
+
               if(m_diLepton.isOS)
                 manager.pass_cut(baseStrDiLeptonIsOS + postFix);
             }
           }
-          
-          if(tt.diLeptons_IDIso[comb].size() >= 2) { 
+
+          if(tt.diLeptons_IDIso[comb].size() >= 2) {
             manager.pass_cut(baseStrExtraDiLeptonVeto + postFix);
           }
 
