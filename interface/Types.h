@@ -39,7 +39,7 @@ namespace TTWAnalysis {
       ID(LepID::Count, false),
       iso(LepIso::Count, false)
     {}
-    Lepton(myLorentzVector p4, uint16_t idx, uint16_t charge, bool isEl, bool isMu, bool isVeto = false, bool isLoose = false, bool isMedium = false, bool isTight = false, float isoValue = 0, bool isoLoose = false, bool isoTight = false):
+    Lepton(myLorentzVector p4, uint16_t idx, int16_t charge, bool isEl, bool isMu, bool isVeto = false, bool isLoose = false, bool isMedium = false, bool isTight = false, float isoValue = 0, bool isoLoose = false, bool isoTight = false):
       BaseObject(p4),
       idx(idx),
       charge(charge),
@@ -66,7 +66,7 @@ namespace TTWAnalysis {
       }
 
     uint16_t idx; // stores index to electron/muon arrays
-    uint16_t charge;
+    int16_t charge;
     float isoValue;
     int16_t hlt_idx = -1; // Index to the matched HLT object. -1 if no match
     bool isEl;
