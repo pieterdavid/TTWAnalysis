@@ -8,6 +8,33 @@ processName_ = 'RECO'
 
 framework = Framework.Framework(True, eras.Run2_25ns, globalTag=globalTag_, processName=processName_)
 
+triggersPerChannel = {
+      "ElEl" : ["HLT_Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v.*"]
+    , "ElMu" : ["HLT_Mu17_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v.*", "HLT_Mu8_TrkIsoVVL_Ele17_CaloIdL_TrackIdL_IsoVL_v.*"]
+    , "MuMu" : ["HLT_Mu17_TrkIsoVVL_(Tk)?Mu8_TrkIsoVVL_DZ_v.*"]
+    }
+triggersPerChannel["MuEl"] = triggersPerChannel["ElMu"]
+
+def makeCategoryParams():
+    categs = dict()
+    for l1 in ("El", "Mu"):
+        for l2 in ("El", "Mu"):
+            flav = "".join((l1,l2))
+            base = cms.PSet(
+                      NElectrons = cms.uint32(sum( 1 for l in (l1,l2) if l == "El" ))
+                    , NMuons     = cms.uint32(sum( 1 for l in (l1,l2) if l == "Mu" ))
+                    , Category   = cms.string("is{0}".format(flav))
+                    , HLT        = cms.vstring(triggersPerChannel[flav])
+                    , Cuts       = cms.vstring(
+                                        "Mll:__:p4.M > 20"
+                                      , "ZVeto:__:( p4.M < 76 ) || ( p4.M > 116 )"
+                                      )
+                    )
+            categs["{0}OS".format(flav)]    = base.clone(Charge=cms.int32( 0), Category=cms.string("is{0} && isOS".format(flav)))
+            categs["{0}Plus".format(flav)]  = base.clone(Charge=cms.int32( 1))
+            categs["{0}Minus".format(flav)] = base.clone(Charge=cms.int32(-1))
+    return cms.PSet(**categs)
+
 framework.addAnalyzer('ttW', cms.PSet(
         type = cms.string('ttw_analyzer'),
         prefix = cms.string('ttW_'),
@@ -43,15 +70,7 @@ framework.addAnalyzer('ttW', cms.PSet(
             hltDRCut = cms.untracked.double(0.3), # DeltaR cut for trigger matching
             hltDPtCut = cms.untracked.double(0.5), #Delta(Pt)/Pt cut for trigger matching
             ),
-        categories_parameters = cms.PSet(
-            MllCutSF = cms.untracked.double(20),
-            MllCutDF = cms.untracked.double(20),
-            MllZVetoCutLow = cms.untracked.double(76),
-            MllZVetoCutHigh = cms.untracked.double(116),
-            HLTDoubleMuon = cms.untracked.vstring('HLT_Mu17_TrkIsoVVL_(Tk)?Mu8_TrkIsoVVL_DZ_v.*'),
-            HLTDoubleEG = cms.untracked.vstring('HLT_Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v.*'),
-            HLTMuonEG = cms.untracked.vstring('HLT_Mu17_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v.*', 'HLT_Mu8_TrkIsoVVL_Ele17_CaloIdL_TrackIdL_IsoVL_v.*'),
-            ),
+        categories_parameters = makeCategoryParams()
         )
     )
 

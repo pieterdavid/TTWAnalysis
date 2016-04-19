@@ -4,7 +4,6 @@
 #include <cp3_llbb/TTWAnalysis/interface/GenStatusFlags.h>
 #include <cp3_llbb/TTWAnalysis/interface/TTWAnalyzer.h>
 #include <cp3_llbb/TTWAnalysis/interface/TTWDileptonCategory.h>
-#include <cp3_llbb/TTWAnalysis/interface/TTWDileptonCategories.h>
 
 #include <cp3_llbb/Framework/interface/MuonsProducer.h>
 #include <cp3_llbb/Framework/interface/ElectronsProducer.h>
@@ -1165,16 +1164,9 @@ after_hlt_matching:
 }
 
 void TTWAnalyzer::registerCategories(CategoryManager& manager, const edm::ParameterSet& config) {
-  #ifdef _GENERIC_DILEPTONCATEGORY
-    for ( const std::string& catName : config.getParameterNames() ) {
-      manager.new_category<TTWAnalysis::GDileptonCategory>(catName, catName+" category", config.getParameter<edm::ParameterSet>(catName));
-    }
-  #else
-    manager.new_category<TTWAnalysis::ElElCategory>("elel", "Category with leading leptons as two electrons", config);
-    manager.new_category<TTWAnalysis::ElMuCategory>("elmu", "Category with leading leptons as electron, muon", config);
-    manager.new_category<TTWAnalysis::MuElCategory>("muel", "Category with leading leptons as muon, electron", config);
-    manager.new_category<TTWAnalysis::MuMuCategory>("mumu", "Category with leading leptons as two muons", config);
-  #endif
+  for ( const std::string& catName : config.getParameterNames() ) {
+    manager.new_category<TTWAnalysis::GDileptonCategory>(catName, catName+" category", config.getParameter<edm::ParameterSet>(catName));
+  }
 }
 
 #include <FWCore/PluginManager/interface/PluginFactory.h>

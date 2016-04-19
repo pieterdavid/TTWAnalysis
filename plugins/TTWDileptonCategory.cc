@@ -46,7 +46,7 @@ void GDileptonCategory::configure(const edm::ParameterSet& conf)
   m_postCuts.clear();
   m_postCuts.emplace_back(std::pair<std::string,DiLeptonCut>("Category", m_llIsInCateg));
   m_hltMatcher.addRegex(conf.getParameter<std::vector<std::string>>("HLT"));
-  m_postCuts.emplace_back(std::pair<std::string,DiLeptonCut>("DiLeptonTriggerMatch", m_hltMatcher));
+  m_postCuts.emplace_back(std::pair<std::string,DiLeptonCut>("DiLeptonTriggerMatch", std::reference_wrapper<DiLeptonHLTMatch>(m_hltMatcher)));
   for ( const auto& otherCutStr : conf.getParameter<std::vector<std::string>>("Cuts") ) {
     auto parsedCut = parseNamedCut(otherCutStr);
     m_postCuts.emplace_back(std::pair<std::string,DiLeptonCut>(parsedCut.first, DiLeptonHybridCut(parsedCut.second)));
@@ -160,7 +160,7 @@ void GDileptonCategory::evaluate_cuts_post_analyzers(CutManager& manager, const 
 
 bool GDileptonCategory::DiLeptonHLTMatch::operator() ( const TTWAnalysis::DiLepton& diLep ) const
 {
-  if ( ! m_hltProd ) { return false; }
+  if ( ( ! m_hltProd ) || ( diLep.hlt_idxs.first == -1 ) || ( diLep.hlt_idxs.second == -1 ) ) { return false; }
 
   std::vector<std::string> mObj1, mObj2, mComm;
   for ( const auto& paths : m_regex ) {
