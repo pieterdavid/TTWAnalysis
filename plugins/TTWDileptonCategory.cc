@@ -160,7 +160,10 @@ void GDileptonCategory::evaluate_cuts_post_analyzers(CutManager& manager, const 
 
 bool GDileptonCategory::DiLeptonHLTMatch::operator() ( const TTWAnalysis::DiLepton& diLep ) const
 {
-  if ( ( ! m_hltProd ) || ( diLep.hlt_idxs.first == -1 ) || ( diLep.hlt_idxs.second == -1 ) ) { return false; }
+  if ( ( ! m_hltProd )
+    || ( diLep.hlt_idxs.first  < 0 ) || ( diLep.hlt_idxs.first  >= int(m_hltProd->object_paths.size()) )
+    || ( diLep.hlt_idxs.second < 0 ) || ( diLep.hlt_idxs.second >= int(m_hltProd->object_paths.size()) ) )
+  { return false; }
 
   std::vector<std::string> mObj1, mObj2, mComm;
   for ( const auto& paths : m_regex ) {

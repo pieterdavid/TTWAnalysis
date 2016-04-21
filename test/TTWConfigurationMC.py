@@ -76,9 +76,10 @@ framework.addAnalyzer('ttW', cms.PSet(
 
 framework.removeProducer('fat_jets')
 
-framework.redoJEC()
-framework.smearJets()
-framework.doSystematics(['jec', 'jer'])
+# framework.redoJEC()
+# framework.smearJets()
+# framework.doSystematics(['jec', 'jer'])
+framework.doSystematics([])
 
 process = framework.create()
 
@@ -86,6 +87,9 @@ process.source.fileNames = cms.untracked.vstring(
     '/store/mc/RunIIFall15MiniAODv2/TT_TuneCUETP8M1_13TeV-amcatnlo-pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/00000/04D51FB4-B2B8-E511-A399-047D7B881D6A.root'
     )
 
+## process.source.fileNames = cms.untracked.vstring(
+##     '/store/mc/RunIIFall15MiniAODv2/TTWJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/60000/14C51DB0-D6B8-E511-8D9B-8CDCD4A9A484.root'
+##     )
 
 ## Tricky gen event from /store/mc/RunIISpring15MiniAODv2/TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/00000/0014DC94-DC5C-E511-82FB-7845C4FC39F5.root
 ## First one is g g -> t tbar with one W -> bbar c

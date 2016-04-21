@@ -76,9 +76,10 @@ framework.addAnalyzer('ttW', cms.PSet(
 
 framework.removeProducer('fat_jets')
 
-framework.redoJEC()
-framework.smearJets()
-framework.doSystematics(['jec', 'jer'])
+# framework.redoJEC()
+# framework.smearJets()
+# framework.doSystematics(['jec', 'jer'])
+framework.doSystematics([])
 
 process = framework.create()
 
