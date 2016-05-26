@@ -1,3 +1,5 @@
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "cp3_llbb/Framework/interface/Analyzer.h"
 #include "cp3_llbb/TTWAnalysis/interface/AnalyzerHelper.h"
 
@@ -54,7 +56,9 @@ void TTWAnalysis::DelegatingAnalyzer::doConsumes(const edm::ParameterSet& config
 void TTWAnalysis::DelegatingAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& setup, const ProducersManager& producers, const AnalyzersManager& analyzers, const CategoryManager& categories)
 {
   for ( auto& hlp : m_helpers ) {
+    LogDebug("ttW") << "-> calling analyze on helper " << hlp->name();
     hlp->analyze(event, setup, producers, analyzers, categories);
+    LogDebug("ttW") << "<- end";
   }
 }
 

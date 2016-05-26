@@ -1,5 +1,7 @@
 #include "DataFormats/Math/interface/LorentzVector.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "cp3_llbb/Framework/interface/AnalyzersManager.h"
 #include "cp3_llbb/TTWAnalysis/interface/AnalyzerHelper.h"
 #include "cp3_llbb/TTWAnalysis/interface/DictTool.h"
@@ -21,6 +23,7 @@ namespace TTWAnalysis {
       {
         this->m_ttWName = config.getParameter<std::string>("TTWAnalyzer");
 
+        LogDebug("ttW") << "DelegatingAnalyzer " << this->name() << " dict tools: ";
         const edm::ParameterSet& dictConfigs = config.getParameter<edm::ParameterSet>("DictTools");
         for ( const std::string& dictToolName : dictConfigs.getParameterNames() ) {
           const auto& dictToolConfig = dictConfigs.getParameter<edm::ParameterSet>(dictToolName);
@@ -29,6 +32,7 @@ namespace TTWAnalysis {
                 dictToolConfig.getParameter<std::string>("type")
               , dictToolConfig.getParameter<edm::ParameterSet>("parameters")
               ));
+          LogDebug("ttW") << m_dicts.size()-1 << " : " << dictToolName;
         }
         // initialize branch-ref-group for each dict based on that
         std::transform(std::begin(this->m_dicts), std::end(this->m_dicts), std::back_inserter(this->m_branchesRefs),
@@ -54,6 +58,7 @@ namespace TTWAnalysis {
         auto candAcc = _accessor<PatObject,Container>(ttW_ana);
         for ( std::size_t iO{0}; candAcc.size() != iO; ++iO ) {
           for ( std::size_t iT{0}; this->m_dicts.size() != iT; ++iT ) {
+            LogDebug("ttW") << "Calling dict tool #" << iT;
             this->m_branchesRefs[iT].addDict(this->m_dicts[iT]->evaluate(candAcc[iO], &event, &eventSetup, &prodMgr, &anaMgr, &catMgr));
           }
         }

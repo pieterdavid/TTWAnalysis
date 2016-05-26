@@ -131,11 +131,11 @@ public:
     Dict ret;
     // Same values used for cut-based muon ID. See:
     //     https://github.com/cms-sw/cmssw/blob/CMSSW_7_4_15/DataFormats/MuonReco/src/MuonSelectors.cc#L756
-    ret.add("dxy", pv && muValid ? mu.muonBestTrack()->dxy(pv->position()) : 0. );
-    ret.add("dz" , pv && muValid ? mu.muonBestTrack()->dz (pv->position()) : 0. );
+    ret.add("dxy", pv && muValid && mu.muonBestTrack().isNonnull() ? mu.muonBestTrack()->dxy(pv->position()) : 0. );
+    ret.add("dz" , pv && muValid && mu.muonBestTrack().isNonnull() ? mu.muonBestTrack()->dz (pv->position()) : 0. );
     ret.add("dca", mu.dB(pat::Muon::PV3D)/mu.edB(pat::Muon::PV3D));
 
-    ret.add("DPToPT", muValid ? mu.innerTrack()->ptError()/mu.innerTrack()->pt() : 0);
+    ret.add("DPToPT", muValid && mu.innerTrack().isNonnull() ? mu.innerTrack()->ptError()/mu.innerTrack()->pt() : 0);
 
     return ret;
   }
