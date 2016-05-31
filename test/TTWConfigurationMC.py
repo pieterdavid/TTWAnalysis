@@ -248,7 +248,17 @@ framework.addAnalyzer('fillLists', cms.PSet(
                             HLTMatch_SingleMu=cms.vstring(["HLT_IsoMu20_v.*", "HLT_IsoTkMu20_v.*"]),
                             HLTMatch_SingleEl=cms.vstring(["HLT_Ele23_WPLoose_Gsf_v*"]),
                             HLTMatch_SingleElMC=cms.vstring(["HLT_Ele23_CaloIdL_TrackIdL_IsoVL_v.*"]),
-                            )))
+                            ))),
+                        HLT2 =cms.PSet(type=cms.string("ttw_leptonHLTMatchv2"), parameters=cms.PSet(
+                            triggers=cms.untracked.FileInPath("cp3_llbb/TTWAnalysis/data/trigger.xml"),
+                            Selections=cms.PSet(
+                                HLTMatch2_SingleMu=cms.vstring(["HLT_IsoMu20_v.*", "HLT_IsoTkMu20_v.*"]),
+                                HLTMatch2_SingleEl=cms.vstring(["HLT_Ele23_WPLoose_Gsf_v*"]),
+                                HLTMatch2_SingleElMC=cms.vstring(["HLT_Ele23_CaloIdL_TrackIdL_IsoVL_v.*"]),
+                                ),
+                            hltDRCut = cms.untracked.double(0.3), # DeltaR cut for trigger matching
+                            hltDPtCut = cms.untracked.double(0.5), #Delta(Pt)/Pt cut for trigger matching
+                            ))
                         )
                     )),
             DiLeptons=cms.PSet(type=cms.string("ttw_dileptonsanalyzerhelper"), prefix=cms.string("ttW_dilepton_"),
@@ -257,7 +267,13 @@ framework.addAnalyzer('fillLists', cms.PSet(
                         Basic=cms.PSet(type=cms.string("ttw_dileptonCandidate"), parameters=cms.PSet()),
                         HLT  =cms.PSet(type=cms.string("ttw_dileptonHLTMatch"), parameters=cms.PSet(Selections=cms.PSet(
                             **dict(("HLTMatch_{0}".format(ky), cms.vstring(*trigs)) for ky,trigs in triggersPerChannel.iteritems())
-                            )))
+                            ))),
+                        HLT2 =cms.PSet(type=cms.string("ttw_dileptonHLTMatchv2"), parameters=cms.PSet(
+                            triggers=cms.untracked.FileInPath("cp3_llbb/TTWAnalysis/data/trigger.xml"),
+                            Selections=cms.PSet(**dict(("HLTMatch2_{0}".format(ky), cms.vstring(*trigs)) for ky,trigs in triggersPerChannel.iteritems())),
+                            hltDRCut = cms.untracked.double(0.3), # DeltaR cut for trigger matching
+                            hltDPtCut = cms.untracked.double(0.5), #Delta(Pt)/Pt cut for trigger matching
+                            ))
                         )
                     )),
             DiJets   =cms.PSet(type=cms.string("ttw_dijetsanalyzerhelper"), prefix=cms.string("ttW_dijet_"),
