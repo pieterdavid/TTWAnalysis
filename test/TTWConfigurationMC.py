@@ -169,6 +169,11 @@ framework.addAnalyzer('fillLists', cms.PSet(
                             ea_R03 = cms.untracked.FileInPath("RecoEgamma/ElectronIdentification/data/PHYS14/effAreaElectrons_cone03_pfNeuHadronsAndPhotons.txt"),
                             ea_R04 = cms.untracked.FileInPath("cp3_llbb/Framework/data/effAreaElectrons_cone04_pfNeuHadronsAndPhotons.txt")
                             )),
+                        MiniIso=cms.PSet(type=cms.string("ttw_electronMiniIso"), parameters=cms.PSet(
+                            ea=cms.untracked.FileInPath("RecoEgamma/ElectronIdentification/data/Spring15/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_25ns.txt"),
+                            rho=cms.untracked.InputTag("fixedGridRhoFastjetCentralNeutral"),
+                            packedCandidates=cms.InputTag("packedPFCandidates"),
+                            )),
                         SF =cms.PSet(type=cms.string("ttw_electronSF" ), parameters=cms.PSet(scale_factors=cms.untracked.PSet(
                             id_veto   = cms.untracked.FileInPath('cp3_llbb/Framework/data/ScaleFactors/Electron_CutBasedID_VetoWP_fromTemplates_withSyst_76X.json'),
                             id_loose  = cms.untracked.FileInPath('cp3_llbb/Framework/data/ScaleFactors/Electron_CutBasedID_LooseWP_fromTemplates_withSyst_76X.json'),
@@ -190,6 +195,11 @@ framework.addAnalyzer('fillLists', cms.PSet(
                         Iso=cms.PSet(type=cms.string("ttw_muonIso"), parameters=cms.PSet(
                             ea_R03=cms.untracked.FileInPath("cp3_llbb/Framework/data/effAreaMuons_cone03_pfNeuHadronsAndPhotons.txt"),
                             ea_R04=cms.untracked.FileInPath("cp3_llbb/Framework/data/effAreaMuons_cone04_pfNeuHadronsAndPhotons.txt"),
+                            )),
+                        MiniIso=cms.PSet(type=cms.string("ttw_muonMiniIso"), parameters=cms.PSet(
+                            ea=cms.untracked.FileInPath("cp3_llbb/TTWAnalysis/data/effAreaMuons_cone03_pfNeuHadronsAndPhotons_Spring15_25ns.txt"),
+                            rho=cms.untracked.InputTag("fixedGridRhoFastjetCentralNeutral"),
+                            packedCandidates=cms.InputTag("packedPFCandidates"),
                             )),
                         SF =cms.PSet(type=cms.string("ttw_muonSF" ), parameters=cms.PSet(scale_factors=cms.untracked.PSet(
                             id_soft   = cms.untracked.FileInPath('cp3_llbb/Framework/data/ScaleFactors/Muon_SoftID_genTracks_id.json'),
