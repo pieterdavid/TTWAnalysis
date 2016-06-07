@@ -181,6 +181,17 @@ framework.addAnalyzer('fillLists', cms.PSet(
                             id_tight  = cms.untracked.FileInPath('cp3_llbb/Framework/data/ScaleFactors/Electron_CutBasedID_TightWP_fromTemplates_withSyst_76X.json'),
                             hww_wp    = cms.untracked.FileInPath('cp3_llbb/Framework/data/ScaleFactors/Electrons_HWW_CutBasedID_TightWP_fromTemplates_withSyst_v1_reco_id_iso.json'),
                             ))),
+                        MVAttH=cms.PSet(type=cms.string("ttw_electronMVAttH"), parameters=cms.PSet(
+                            ## for matching jet
+                            JetLeptonDR=cms.double(.4),
+                            Jets=cms.InputTag("slimmedJets"),
+                            ## for mini-isolation
+                            packedCandidates=cms.InputTag("packedPFCandidates"),
+                            ea=cms.FileInPath("RecoEgamma/ElectronIdentification/data/Spring15/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_25ns.txt"),
+                            rho=cms.untracked.InputTag("fixedGridRhoFastjetCentralNeutral"),
+                            ## BDT weights
+                            WeightsFile=cms.FileInPath("cp3_llbb/TTWAnalysis/data/forMoriond16_el_sigTTZ_bkgTT_BDTG.weights.xml"),
+                            )),
                         )
                     )),
             Muons    =cms.PSet(type=cms.string("ttw_muonsanalyzerhelper"), prefix=cms.string("muon_"),
@@ -214,6 +225,17 @@ framework.addAnalyzer('fillLists', cms.PSet(
                             id_hww              = cms.untracked.FileInPath('cp3_llbb/Framework/data/ScaleFactors/Muon_MediumID_Data_MC_25ns_PTvsETA_HWW_76.json'),
                             iso_tight_id_hww    = cms.untracked.FileInPath('cp3_llbb/Framework/data/ScaleFactors/Muon_ISOTight_Data_MC_25ns_PTvsETA_HWW.json'),
                             ))),
+                        MVAttH=cms.PSet(type=cms.string("ttw_muonMVAttH"), parameters=cms.PSet(
+                            ## for matching jet
+                            JetLeptonDR=cms.double(.4),
+                            Jets=cms.InputTag("slimmedJets"),
+                            ## for mini-isolation
+                            packedCandidates=cms.InputTag("packedPFCandidates"),
+                            ea=cms.FileInPath("cp3_llbb/TTWAnalysis/data/effAreaMuons_cone03_pfNeuHadronsAndPhotons_Spring15_25ns.txt"),
+                            rho=cms.untracked.InputTag("fixedGridRhoFastjetCentralNeutral"),
+                            ## BDT weights
+                            WeightsFile=cms.FileInPath("cp3_llbb/TTWAnalysis/data/forMoriond16_mu_sigTTZ_bkgTT_BDTG.weights.xml"),
+                            )),
                         )
                     )),
             Jets     =cms.PSet(type=cms.string("ttw_jetsanalyzerhelper"), prefix=cms.string("jet_"),
