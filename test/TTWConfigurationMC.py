@@ -330,9 +330,9 @@ framework.addAnalyzer('fillLists', cms.PSet(
         )
     ))
 
-framework.addAnalyzer('ttTruth', cms.PSet(
-        type = cms.string('tttruth_analyzer'),
-        prefix = cms.string('ttTruth_'),
+framework.addAnalyzer('ttWTruth', cms.PSet(
+        type = cms.string('ttwtruth_analyzer'),
+        prefix = cms.string(''),
         enable = cms.bool(True),
         parameters = cms.PSet(
             TTWAnalyzer=cms.string("ttW"),
