@@ -58,7 +58,7 @@ el_Iso_WPs = odict(Loose = "1 == 1",
                    Tight = "1 == 0"
                   )
 ## format: { (IDnm, ISOnm) : (el-cutStr, mu-cutStr) }
-lepton_WPs = odict(((idKy[0], isoKy[0]), ("( {id} && {iso} )".format(id=el_ID_WPs[idKy], iso=el_Iso_WPs[isoKy]), "( {id} && {iso} )".format(id=mu_ID_WPs[idKy], iso=mu_Iso_WPs[isoKy]))) for idKy,isoKy in product(("Loose", "Medium", "Tight"), ("Loose", "Tight")))
+lepton_WPs = odict(((idKy[0], isoKy[0]), ("( {id} && {iso} )".format(id=el_ID_WPs[idKy], iso=el_Iso_WPs[isoKy]), "( {id} && {iso} )".format(id=mu_ID_WPs[idKy], iso=mu_Iso_WPs[isoKy]))) for idKy,isoKy in product(("Loose", "Medium"), ("Loose",)))
 
 ## Jet ID: https://twiki.cern.ch/twiki/bin/view/CMS/JetID#Recommendations_for_13_TeV_data
 JetIDDefs = dict((k,v.format(
@@ -95,7 +95,7 @@ b_tag_WPs = odict((nm, "(abs(eta)<2.4) && (bDiscriminator('{0}')>{1:.5f})".forma
                   for nm,cutVal in [
                     ("Loose" , 0.460)
                   , ("Medium", 0.8  )
-                  , ("Tight" , 0.935)
+                  #, ("Tight" , 0.935)
                   ])
 
 framework.addAnalyzer('ttW', cms.PSet(
