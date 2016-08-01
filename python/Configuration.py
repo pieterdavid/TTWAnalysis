@@ -188,7 +188,7 @@ def addTTWCandidatesAnalyzer(framework, name="fillLists", prefix=""):
                                 ea=cms.FileInPath("RecoEgamma/ElectronIdentification/data/Spring15/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_25ns.txt"),
                                 rho=cms.untracked.InputTag("fixedGridRhoFastjetCentralNeutral"),
                                 ## BDT weights
-                                WeightsFile=cms.FileInPath("cp3_llbb/TTWAnalysis/data/forMoriond16_el_sigTTZ_bkgTT_BDTG.weights.xml"),
+                                WeightsFile=cms.FileInPath("cp3_llbb/TTWAnalysis/data/el_BDTG.weights.xml"),
                                 )),
                             )
                         )),
@@ -232,7 +232,7 @@ def addTTWCandidatesAnalyzer(framework, name="fillLists", prefix=""):
                                 ea=cms.FileInPath("cp3_llbb/TTWAnalysis/data/effAreaMuons_cone03_pfNeuHadronsAndPhotons_Spring15_25ns.txt"),
                                 rho=cms.untracked.InputTag("fixedGridRhoFastjetCentralNeutral"),
                                 ## BDT weights
-                                WeightsFile=cms.FileInPath("cp3_llbb/TTWAnalysis/data/forMoriond16_mu_sigTTZ_bkgTT_BDTG.weights.xml"),
+                                WeightsFile=cms.FileInPath("cp3_llbb/TTWAnalysis/data/mu_BDTG.weights.xml"),
                                 )),
                             )
                         )),
