@@ -252,7 +252,7 @@ TTWAnalysis::Dict TTWAnalysis::DictTTHElectronMVA::evaluate(const pat::Electron&
   getVar("LepGood_mvaIdSpring15"        ) = elValid ? cand.userFloat("ElectronMVAEstimatorRun2Spring15NonTrig25nsV1Values") : -1.;
 
   TTWAnalysis::Dict ret{};
-  ret.add("LeptonMVA"     , elValid ? m_tmvaReader.EvaluateRegression("ttH-el-BDTG")[0] : -1.);
+  ret.add("LeptonMVA"     , elValid ? m_tmvaReader.EvaluateMVA("ttH-el-BDTG") : -1.);
   // some more variables that are only calculated here
   ret.add("jetPtRelv2"    , getVar("LepGood_jetPtRelv2"));
   ret.add("jetPtRatio"    , getVar("min(LepGood_jetPtRatiov2,1.5)"));
@@ -305,7 +305,7 @@ TTWAnalysis::Dict TTWAnalysis::DictTTHMuonMVA::evaluate(const pat::Muon& cand,
   getVar("LepGood_segmentCompatibility" ) = cand.segmentCompatibility();
 
   TTWAnalysis::Dict ret{};
-  ret.add("LeptonMVA"     , muValid ? m_tmvaReader.EvaluateRegression("ttH-mu-BDTG")[0] : -1.);
+  ret.add("LeptonMVA"     , muValid ? m_tmvaReader.EvaluateMVA("ttH-mu-BDTG") : -1.);
   // some more variables that are only calculated here
   ret.add("jetPtRelv2"    , getVar("LepGood_jetPtRelv2"));
   ret.add("jetPtRatio"    , getVar("min(LepGood_jetPtRatiov2,1.5)"));
