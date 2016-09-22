@@ -15,7 +15,7 @@ dileptonTriggers = {
     }
 dileptonTriggers["MuEl"] = dileptonTriggers["ElMu"]
 
-def makeCategoryParams(llWPs=[], diLeptonTriggerMatch=False):
+def makeCategoryParams(llWPs=[], diLeptonTriggerMatch=False, addPassAll=False):
     categs = dict() ## take dilepton working points from input
     for l1 in ("El", "Mu"):
         for l2 in ("El", "Mu"):
@@ -34,6 +34,17 @@ def makeCategoryParams(llWPs=[], diLeptonTriggerMatch=False):
             categs["{0}OS".format(flav)]    = base.clone(Charge=cms.int32( 0), Category=cms.string("is{0} && isOS".format(flav)))
             categs["{0}Plus".format(flav)]  = base.clone(Charge=cms.int32( 1))
             categs["{0}Minus".format(flav)] = base.clone(Charge=cms.int32(-1))
+    if addPassAll:
+        categs["all"] = cms.PSet(
+                  NElectrons = cms.uint32(0)
+                , NMuons     = cms.uint32(0)
+                , Category   = cms.string("")
+                , HLT        = cms.vstring()
+                , Cuts       = cms.VPSet()
+                , WPs        = cms.vstring()
+                , Charge     = cms.int32(0)
+                )
+
     return cms.PSet(**categs)
 
 ## Lepton identification and isolation working points
@@ -95,7 +106,7 @@ b_tag_WPs = odict((nm, "(abs(eta)<2.4) && (bDiscriminator('{0}')>{1:.5f})".forma
                   #, ("Tight" , 0.935)
                   ])
 
-def addTTWAnalyzer(framework, name="ttW", prefix="ttW_"):
+def addTTWAnalyzer(framework, name="ttW", prefix="ttW_", applyFilter=True):
     framework.addAnalyzer(name, cms.PSet(
         type = cms.string('ttw_analyzer'),
         prefix = cms.string(prefix),
@@ -143,7 +154,7 @@ def addTTWAnalyzer(framework, name="ttW", prefix="ttW_"):
                                                  SubLeading=cms.string(sel2)))
                                     for (lID, lIso), (nm1,sel1), (nm2,sel2) in product(lepton_WPs.iterkeys(), *tee(b_tag_WPs.iteritems())))),
             ),
-        categories_parameters = makeCategoryParams(llWPs=["ID{0}{1}_Iso{2}{3}".format(id1,id2,iso1,iso2) for (id1,iso1), (id2,iso2) in product(*tee(lepton_WPs.iterkeys()))], diLeptonTriggerMatch=False)
+        categories_parameters = makeCategoryParams(llWPs=["ID{0}{1}_Iso{2}{3}".format(id1,id2,iso1,iso2) for (id1,iso1), (id2,iso2) in product(*tee(lepton_WPs.iterkeys()))], diLeptonTriggerMatch=False, addPassAll=(not applyFilter))
         ))
 
 def addTTWCandidatesAnalyzer(framework, name="fillLists", prefix=""):
