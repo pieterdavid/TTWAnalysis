@@ -123,7 +123,7 @@ def addTTWAnalyzer(framework, name="ttW", prefix="ttW_", applyFilter=True):
             muonPtCut = cms.untracked.double(10),
             muonEtaCut = cms.untracked.double(2.4),
 
-            jetPtCut = cms.untracked.double(25),
+            jetPtCut = cms.untracked.double(20),
             jetEtaCut = cms.untracked.double(2.5),
             #jetPUID = cms.untracked.double(-9999999),
             jetDRleptonCut = cms.untracked.double(0.3),
