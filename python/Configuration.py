@@ -117,16 +117,16 @@ def addTTWAnalyzer(framework, name="ttW", prefix="ttW_", applyFilter=True):
             jetsProducer = cms.string('jets'),
             metProducer = cms.string('met'),
 
-            electronPtCut = cms.untracked.double(10),
+            electronPtCut = cms.untracked.double(5),
             electronEtaCut = cms.untracked.double(2.5),
 
-            muonPtCut = cms.untracked.double(10),
+            muonPtCut = cms.untracked.double(5),
             muonEtaCut = cms.untracked.double(2.4),
 
-            jetPtCut = cms.untracked.double(20),
+            jetPtCut = cms.untracked.double(25),
             jetEtaCut = cms.untracked.double(2.5),
             #jetPUID = cms.untracked.double(-9999999),
-            jetDRleptonCut = cms.untracked.double(0.3),
+            jetDRleptonCut = cms.untracked.double(0.4),
 
             bTagName = cms.untracked.string(bTagName),
 
@@ -178,10 +178,13 @@ def addTTWCandidatesAnalyzer(framework, name="fillLists", prefix=""):
                                 ea_R03 = cms.untracked.FileInPath("RecoEgamma/ElectronIdentification/data/PHYS14/effAreaElectrons_cone03_pfNeuHadronsAndPhotons.txt"),
                                 ea_R04 = cms.untracked.FileInPath("cp3_llbb/Framework/data/effAreaElectrons_cone04_pfNeuHadronsAndPhotons.txt")
                                 )),
-                            MiniIso=cms.PSet(type=cms.string("ttw_electronMiniIso"), parameters=cms.PSet(
-                                ea=cms.untracked.FileInPath("RecoEgamma/ElectronIdentification/data/Spring15/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_25ns.txt"),
-                                rho=cms.untracked.InputTag("fixedGridRhoFastjetCentralNeutral"),
-                                packedCandidates=cms.InputTag("packedPFCandidates"),
+                            MiniIso=cms.PSet(type=cms.string("ttw_electronHybridFunctions"), parameters=cms.PSet(
+                                Functions=cms.PSet(**dict((nm, cms.string('userFloat("{0}")'.format(nm))) for nm in chain(
+                                    ("miniIsoR", "miniAbsIsoCharged", "miniAbsIsoPho", "miniAbsIsoNHad", "miniAbsIsoPU"),
+                                    ("_".join((chnabsrel, strat))
+                                        for chnabsrel in ("miniAbsIsoNeutral", "miniAbsIso", "miniRelIso")
+                                        for strat in ("weights", "raw", "rhoArea", "deltaBeta"))
+                                    )))
                                 )),
                             SF =cms.PSet(type=cms.string("ttw_electronSF" ), parameters=cms.PSet(scale_factors=cms.untracked.PSet(
                                 id_veto   = cms.untracked.FileInPath('cp3_llbb/Framework/data/ScaleFactors/Electron_CutBasedID_VetoWP_fromTemplates_withSyst_76X.json'),
@@ -216,10 +219,13 @@ def addTTWCandidatesAnalyzer(framework, name="fillLists", prefix=""):
                                 ea_R03=cms.untracked.FileInPath("cp3_llbb/Framework/data/effAreaMuons_cone03_pfNeuHadronsAndPhotons.txt"),
                                 ea_R04=cms.untracked.FileInPath("cp3_llbb/Framework/data/effAreaMuons_cone04_pfNeuHadronsAndPhotons.txt"),
                                 )),
-                            MiniIso=cms.PSet(type=cms.string("ttw_muonMiniIso"), parameters=cms.PSet(
-                                ea=cms.untracked.FileInPath("cp3_llbb/TTWAnalysis/data/effAreaMuons_cone03_pfNeuHadronsAndPhotons_Spring15_25ns.txt"),
-                                rho=cms.untracked.InputTag("fixedGridRhoFastjetCentralNeutral"),
-                                packedCandidates=cms.InputTag("packedPFCandidates"),
+                            MiniIso=cms.PSet(type=cms.string("ttw_muonHybridFunctions"), parameters=cms.PSet(
+                                Functions=cms.PSet(**dict((nm, cms.string('userFloat("{0}")'.format(nm))) for nm in chain(
+                                    ("miniIsoR", "miniAbsIsoCharged", "miniAbsIsoPU"),
+                                    ("_".join((chnabsrel, strat))
+                                        for chnabsrel in ("miniAbsIsoNeutral", "miniAbsIso", "miniRelIso")
+                                        for strat in ("weights", "raw", "rhoArea", "deltaBeta"))
+                                    )))
                                 )),
                             SF =cms.PSet(type=cms.string("ttw_muonSF" ), parameters=cms.PSet(scale_factors=cms.untracked.PSet(
                                 id_soft   = cms.untracked.FileInPath('cp3_llbb/Framework/data/ScaleFactors/Muon_SoftID_genTracks_id.json'),
@@ -348,20 +354,37 @@ def customizeProducers(framework):
     framework.addProducer("electrons", cms.PSet(type=cms.string("ttw_electronproducer"), enable=cms.bool(True),
         prefix=cms.string("electron_"),
         parameters=cms.PSet(
-            input=cms.InputTag("slimmedElectrons"))
+            input=cms.InputTag("slimmedElectrons"),
+            DictTools=cms.PSet(
+                MiniIso=cms.PSet(type=cms.string("ttw_electronMiniIso"), parameters=cms.PSet(
+                    ea=cms.untracked.FileInPath("RecoEgamma/ElectronIdentification/data/Spring15/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_25ns.txt"),
+                    rho=cms.untracked.InputTag("fixedGridRhoFastjetCentralNeutral"),
+                    packedCandidates=cms.InputTag("packedPFCandidates"),
+                    )),
+                )
+            )
         ))
     framework.removeProducer("muons")
     framework.addProducer("muons",     cms.PSet(type=cms.string("ttw_muonproducer")    , enable=cms.bool(True),
         prefix=cms.string("muon_"),
         parameters=cms.PSet(
-            input=cms.InputTag("slimmedMuons"))
+            input=cms.InputTag("slimmedMuons"),
+            DictTools=cms.PSet(
+                MiniIso=cms.PSet(type=cms.string("ttw_muonMiniIso"), parameters=cms.PSet(
+                    ea=cms.untracked.FileInPath("cp3_llbb/TTWAnalysis/data/effAreaMuons_cone03_pfNeuHadronsAndPhotons_Spring15_25ns.txt"),
+                    rho=cms.untracked.InputTag("fixedGridRhoFastjetCentralNeutral"),
+                    packedCandidates=cms.InputTag("packedPFCandidates"),
+                    )),
+                )
+            )
         ))
     framework.removeProducer("jets")
     framework.addProducer("jets",      cms.PSet(type=cms.string("ttw_jetproducer")     , enable=cms.bool(True),
         prefix=cms.string("jet_"),
         parameters=cms.PSet(
             input=cms.InputTag("slimmedJets"),
-            cut=cms.untracked.string("pt > 10"))
+            cut=cms.untracked.string("pt > 10"),
+            DictTools=cms.PSet())
         ))
 
     framework.removeProducer('fat_jets')

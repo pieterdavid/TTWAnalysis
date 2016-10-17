@@ -12,8 +12,6 @@
 #include "cp3_llbb/Framework/interface/Types.h"
 #include "cp3_llbb/TTWAnalysis/interface/DictTool.h"
 
-#include "RecoEgamma/EgammaTools/interface/EffectiveAreas.h"
-
 #include "Helpers.h"
 #include "Math/VectorUtil.h"
 #include "TMVA/Reader.h"
@@ -26,11 +24,10 @@ namespace TTWAnalysis {
  * - https://twiki.cern.ch/twiki/bin/viewauth/CMS/LeptonMVA
  * - https://twiki.cern.ch/twiki/bin/viewauth/CMS/TTH-Multileptons
  */
-class DictTTHElectronMVA : public DictTool<pat::Electron>, protected DictRhoHelper, protected DictPVHelper {
+class DictTTHElectronMVA : public DictTool<pat::Electron>, protected DictPVHelper {
 public:
   DictTTHElectronMVA(const edm::ParameterSet& config)
     : DictTool<pat::Electron>{config}
-    , DictRhoHelper{config}
     , DictPVHelper{config}
     , m_vars{
         {"LepGood_pt"                   , -1.}
@@ -46,7 +43,6 @@ public:
       , {"log(abs(LepGood_dz))"         , -1.}
       , {"LepGood_mvaIdSpring15"        , -1.}
     }
-    , m_ea{EffectiveAreas{config.getParameter<edm::FileInPath>("ea").fullPath()}}
     , m_maxDR{config.getParameter<double>("JetLeptonDR")}
   {
     for ( auto& entry : m_vars ) {
@@ -59,9 +55,7 @@ public:
 
   virtual void doConsumes(const edm::ParameterSet& config, edm::ConsumesCollector&& collector) override
   {
-    DictRhoHelper::doConsumes(config, std::forward<edm::ConsumesCollector>(collector));
     DictPVHelper::doConsumes(config, std::forward<edm::ConsumesCollector>(collector));
-    m_isoComp.doConsumes(config, std::forward<edm::ConsumesCollector>(collector));
     m_jetsToken = collector.consumes<std::vector<pat::Jet>>(config.getParameter<edm::InputTag>("Jets"));
   }
 
@@ -70,20 +64,17 @@ public:
       const ProducersManager* /**/, const AnalyzersManager* /**/, const CategoryManager* /**/) const override;
 
 private:
-  mutable heppy::IsolationComputer m_isoComp;
   mutable std::vector<std::pair<std::string,float>> m_vars;
   float& getVar(const std::string& name) const { auto it = std::find_if(std::begin(m_vars), std::end(m_vars), [&name] ( const std::pair<std::string,float>& item ) { return name == item.first; }); return it->second; }
   mutable TMVA::Reader m_tmvaReader;
   edm::EDGetTokenT<std::vector<pat::Jet>> m_jetsToken;
-  EffectiveAreas m_ea;
   double m_maxDR;
 };
 
-class DictTTHMuonMVA : public DictTool<pat::Muon>, protected DictRhoHelper, protected DictPVHelper {
+class DictTTHMuonMVA : public DictTool<pat::Muon>, protected DictPVHelper {
 public:
   DictTTHMuonMVA(const edm::ParameterSet& config)
     : DictTool<pat::Muon>{config}
-    , DictRhoHelper{config}
     , DictPVHelper{config}
     , m_vars{
         {"LepGood_pt"                   , -1.}
@@ -99,7 +90,6 @@ public:
       , {"log(abs(LepGood_dz))"         , -1.}
       , {"LepGood_segmentCompatibility" , -1.}
     }
-    , m_ea{EffectiveAreas{config.getParameter<edm::FileInPath>("ea").fullPath()}}
     , m_maxDR{config.getParameter<double>("JetLeptonDR")}
   {
     for ( auto& entry : m_vars ) {
@@ -112,9 +102,7 @@ public:
 
   virtual void doConsumes(const edm::ParameterSet& config, edm::ConsumesCollector&& collector) override
   {
-    DictRhoHelper::doConsumes(config, std::forward<edm::ConsumesCollector>(collector));
     DictPVHelper::doConsumes(config, std::forward<edm::ConsumesCollector>(collector));
-    m_isoComp.doConsumes(config, std::forward<edm::ConsumesCollector>(collector));
     m_jetsToken = collector.consumes<std::vector<pat::Jet>>(config.getParameter<edm::InputTag>("Jets"));
   }
 
@@ -123,12 +111,10 @@ public:
       const ProducersManager* /**/, const AnalyzersManager* /**/, const CategoryManager* /**/) const override;
 
 private:
-  mutable heppy::IsolationComputer m_isoComp;
   mutable std::vector<std::pair<std::string,float>> m_vars;
   float& getVar(const std::string& name) const { auto it = std::find_if(std::begin(m_vars), std::end(m_vars), [&name] ( const std::pair<std::string,float>& item ) { return name == item.first; }); return it->second; }
   mutable TMVA::Reader m_tmvaReader;
   edm::EDGetTokenT<std::vector<pat::Jet>> m_jetsToken;
-  EffectiveAreas m_ea;
   double m_maxDR;
 };
 }
@@ -165,14 +151,28 @@ namespace {
   }
 
   // Lepton-aware JEC
-  reco::Candidate::LorentzVector jetLepAwareJEC(const pat::Jet* jet, const reco::Candidate::LorentzVector& lepton)
+  reco::Candidate::LorentzVector jetLepAwareJEC(const pat::Jet* jet, const reco::Candidate::LorentzVector& lepton, bool print=false)
   {
     if ( ( ! jet ) || ( (jet->p4()*jet->jecFactor("Uncorrected")-lepton).Rho() < 1.e-4 ) ) {
+      if ( print ) { std::cout << "No matching jet with significantly different momentum -> returning lepton" << std::endl; }
       return lepton;
     } else {
       const float rawCorr{jet->jecFactor("Uncorrected")};
-      const float l1Corr{jet->jecSetAvailable("L1") ? jet->jecFactor("L1") : float(1.)};
-      return (jet->p4()*rawCorr-lepton*(1./l1Corr))/rawCorr+lepton;
+      const float l1Corr{jet->jecFactor("L1FastJet")};
+      if ( print ) {
+        std::cout << "Raw correction: " << rawCorr << "; L1 correction: " << l1Corr << std::endl;
+        std::cout << "Available JEC set: ";
+        for ( const auto& jecSetName : jet->availableJECSets() ) {
+          std::cout << jecSetName << ", ";
+        }
+        std::cout << std::endl;
+        std::cout << "Available JEC levels: ";
+        for ( const auto& jecLevelName : jet->availableJECLevels() ) {
+          std::cout << jecLevelName << " (" << jet->jecFactor(jecLevelName) << "), ";
+        }
+        std::cout << std::endl;
+      }
+      return (jet->p4()-lepton*(1./l1Corr))+lepton;
     }
   }
 
@@ -188,8 +188,8 @@ namespace {
     if ( ( ! jet ) || ( ! pv ) ) { return 0; }
 
     return std::count_if(std::begin(jet->daughterPtrVector()), std::end(jet->daughterPtrVector()),
-        [&cand,pv] ( reco::CandidatePtr daug ) {
-          if ( ( VectorUtil::DeltaR(daug->p4(), cand.p4()) < 0.4 ) && ( daug->charge() != 0 ) ) {
+        [jet,pv] ( reco::CandidatePtr daug ) {
+          if ( ( VectorUtil::DeltaR(daug->p4(), jet->p4()) < 0.4 ) && ( daug->charge() != 0 ) ) {
             const pat::PackedCandidate* pkCand = dynamic_cast<const pat::PackedCandidate*>(daug.get());
             if ( pkCand->fromPV() >= pat::PackedCandidate::PVTight ) {
               auto trk = pkCand->pseudoTrack();
@@ -205,30 +205,20 @@ namespace {
           return false;
         });
   }
+
+  void printMomentum( const reco::Candidate::LorentzVector& mom, std::ostream& out )
+  {
+    out << "(PT=" << mom.Pt() << ",ETA=" << mom.Eta() << ",PHI=" << mom.Phi() << ",E=" << mom.E() << ")";
+  }
 }
 
 TTWAnalysis::Dict TTWAnalysis::DictTTHElectronMVA::evaluate(const pat::Electron& cand,
     const edm::Event* event, const edm::EventSetup* /**/,
     const ProducersManager* /**/, const AnalyzersManager* /**/, const CategoryManager* /**/) const
 {
-  using heppy::IsolationComputer;
-  m_isoComp.updateEvent(event);
-
-  const double rho = event ? getRho(event) : 0.;
   bool elValid{cand.originalObjectRef().isNonnull()};
   const double eta = elValid ? cand.superCluster()->eta() : 0.;
   const reco::Vertex* pv = event ? getPV(event) : nullptr;
-
-  // TODO add all this mini isolation info to the pat candidates instead to void duplication
-
-  const double outerR{10.0/std::min(std::max(cand.pt(), 50.),200.)};
-  const double innerRPh{(!cand.isEB()) ? 0.08 : 0.}; // inner rad for photons if eleE
-  const double innerRCh{(!cand.isEB()) ? 0.015 : 0.}; // inner rad for charged particles if eleE
-
-  const double absIsoCharged{m_isoComp.chargedAbsIso(cand, outerR, innerRCh, 0., IsolationComputer::selfVetoNone)};
-  const double isoPhotRaw{m_isoComp.photonAbsIsoRaw(cand, outerR, innerRPh, 0., IsolationComputer::selfVetoNone)};
-  const double isoNHadRaw{m_isoComp.neutralHadAbsIsoRaw(cand, outerR, 0., 0., IsolationComputer::selfVetoNone)};
-  const double isoNeutral{std::max(0., isoPhotRaw+isoNHadRaw - rho * m_ea.getEffectiveArea(eta) * std::pow(outerR/0.3, 2))};
 
   edm::Handle<std::vector<pat::Jet>> jets;
   const pat::Jet* jet{nullptr};
@@ -238,11 +228,20 @@ TTWAnalysis::Dict TTWAnalysis::DictTTHElectronMVA::evaluate(const pat::Electron&
   }
   int jetNDauChargedMVASel = ( jet && pv ) ? numberOfChargedDaughtersMVASel(jet, cand, pv) : 0;
 
+  if ( false ) {
+    std::cout << "\n\nElectron prompt-lepton MVA for electron with momentum "; printMomentum(cand.p4(), std::cout); std::cout << std::endl;
+    std::cout << "Best matching jet: "; if ( jet ) { printMomentum(jet->p4(), std::cout); } else { std::cout << "none"; }; std::cout << std::endl;
+    if ( jet ) {
+      reco::Candidate::LorentzVector m{jetLepAwareJEC(jet, cand.p4(), true)};
+      std::cout << "After lepton-aware JEC: "; printMomentum(m, std::cout); std::cout << std::endl;
+    }
+  }
+
   getVar("LepGood_pt"                   ) = cand.pt();
   getVar("LepGood_eta"                  ) = eta;
   getVar("LepGood_jetNDauChargedMVASel" ) = jetNDauChargedMVASel;
-  getVar("LepGood_miniRelIsoCharged"    ) = absIsoCharged/cand.pt();
-  getVar("LepGood_miniRelIsoNeutral"    ) = isoNeutral/cand.pt();
+  getVar("LepGood_miniRelIsoCharged"    ) = elValid ? cand.userFloat("miniAbsIsoCharged")/cand.pt() : -1.;
+  getVar("LepGood_miniRelIsoNeutral"    ) = elValid ? cand.userFloat("miniAbsIsoNeutral_rhoArea")/cand.pt() : -1.;
   getVar("LepGood_jetPtRelv2"           ) = ptRelv2(jet, cand.p4());
   getVar("min(LepGood_jetPtRatiov2,1.5)") = std::min(cand.pt()/jetLepAwareJEC(jet, cand.p4()).Pt(), 1.5);
   getVar("max(LepGood_jetBTagCSV,0)"    ) = std::max(jet ? jet->bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags") : -99., 0.);
@@ -270,18 +269,8 @@ TTWAnalysis::Dict TTWAnalysis::DictTTHMuonMVA::evaluate(const pat::Muon& cand,
     const edm::Event* event, const edm::EventSetup* /**/,
     const ProducersManager* /**/, const AnalyzersManager* /**/, const CategoryManager* /**/) const
 {
-  using heppy::IsolationComputer;
-  m_isoComp.updateEvent(event);
-
-  const double rho = event ? getRho(event) : 0.;
   bool muValid{cand.originalObjectRef().isNonnull()};
   const reco::Vertex* pv = event ? getPV(event) : nullptr;
-
-  const double outerR{10.0/std::min(std::max(cand.pt(), 50.),200.)};
-
-  const double absIsoCharged{m_isoComp.chargedAbsIso(cand, outerR, 0.0001, 0.)};
-  const double isoNeutralRaw{m_isoComp.neutralAbsIsoRaw(cand, outerR, 0.01, 0.5)};
-  const double isoNeutral{std::max(0., isoNeutralRaw - rho * m_ea.getEffectiveArea(cand.eta()) * std::pow(outerR/0.3, 2))};
 
   edm::Handle<std::vector<pat::Jet>> jets;
   const pat::Jet* jet{nullptr};
@@ -291,11 +280,20 @@ TTWAnalysis::Dict TTWAnalysis::DictTTHMuonMVA::evaluate(const pat::Muon& cand,
   }
   int jetNDauChargedMVASel = ( jet && pv ) ? numberOfChargedDaughtersMVASel(jet, cand, pv) : 0;
 
+  if ( false ) {
+    std::cout << "\n\nMuon prompt-lepton MVA for muon with momentum "; printMomentum(cand.p4(), std::cout); std::cout << std::endl;
+    std::cout << "Best matching jet: "; if ( jet ) { printMomentum(jet->p4(), std::cout); } else { std::cout << "none"; }; std::cout << std::endl;
+    if ( jet ) {
+      reco::Candidate::LorentzVector m{jetLepAwareJEC(jet, cand.p4(), true)};
+      std::cout << "After lepton-aware JEC: "; printMomentum(m, std::cout); std::cout << std::endl;
+    }
+  }
+
   getVar("LepGood_pt"                   ) = cand.pt();
   getVar("LepGood_eta"                  ) = cand.eta();
   getVar("LepGood_jetNDauChargedMVASel" ) = jetNDauChargedMVASel;
-  getVar("LepGood_miniRelIsoCharged"    ) = absIsoCharged/cand.pt();
-  getVar("LepGood_miniRelIsoNeutral"    ) = isoNeutral/cand.pt();
+  getVar("LepGood_miniRelIsoCharged"    ) = muValid ? cand.userFloat("miniAbsIsoCharged")/cand.pt() : -1.;
+  getVar("LepGood_miniRelIsoNeutral"    ) = muValid ? cand.userFloat("miniAbsIsoNeutral_rhoArea")/cand.pt() : -1.;
   getVar("LepGood_jetPtRelv2"           ) = ptRelv2(jet, cand.p4());
   getVar("min(LepGood_jetPtRatiov2,1.5)") = std::min(cand.pt()/jetLepAwareJEC(jet, cand.p4()).Pt(), 1.5);
   getVar("max(LepGood_jetBTagCSV,0)"    ) = std::max(jet ? jet->bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags") : -99., 0.);
@@ -315,6 +313,7 @@ TTWAnalysis::Dict TTWAnalysis::DictTTHMuonMVA::evaluate(const pat::Muon& cand,
   ret.add("miniRelIsoCharged", getVar("LepGood_miniRelIsoCharged"));
   ret.add("miniRelIsoNeutral", getVar("LepGood_miniRelIsoNeutral"));
   ret.add("segmentCompatibility", getVar("LepGood_segmentCompatibility" ));
+
 
   return ret;
 }
