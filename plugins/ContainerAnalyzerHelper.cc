@@ -35,11 +35,13 @@ namespace TTWAnalysis {
           LogDebug("ttW") << m_dicts.size()-1 << " : " << dictToolName;
         }
         // initialize branch-ref-group for each dict based on that
+        LogDebug("ttW") << "Container analyzer helper " << this->name() << ": initializing branches";
         std::transform(std::begin(this->m_dicts), std::end(this->m_dicts), std::back_inserter(this->m_branchesRefs),
             [this] ( const DictHolder& tool ) {
               PatObject tmp{};
               return BranchRefsHolder(m_tree, tool.first->evaluate(tmp));
             });
+        LogDebug("ttW") << "Container analyzer helper " << this->name() << " initialized";
       }
 
       virtual ~ContainerAnalyzerHelper() {}
