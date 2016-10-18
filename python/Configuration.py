@@ -186,6 +186,12 @@ def addTTWCandidatesAnalyzer(framework, name="fillLists", prefix=""):
         parameters = cms.PSet(
             Helpers    = cms.PSet(
                 ### BASIC OBJECTS
+                PVs=cms.PSet(type=cms.string("ttw_verticesanalyzerhelper"), prefix=cms.string("vertex_"),
+                    parameters=cms.PSet(TTWAnalyzer=cms.string("ttW"),
+                        DictTools=cms.PSet(
+                            PV=cms.PSet(type=cms.string("ttw_vertexPVVars"), parameters=cms.PSet()),
+                            )
+                        )),
                 Electrons=cms.PSet(type=cms.string("ttw_electronsanalyzerhelper"), prefix=cms.string("electron_"),
                     parameters=cms.PSet(TTWAnalyzer=cms.string("ttW"),
                         DictTools=cms.PSet(
@@ -414,4 +420,5 @@ def customizeProducers(framework):
             DictTools=cms.PSet())
         ))
 
+    framework.removeProducer('vertices')
     framework.removeProducer('fat_jets')

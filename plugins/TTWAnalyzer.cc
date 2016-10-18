@@ -190,9 +190,8 @@ void TTWAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& setup,
   LogDebug("ttW") << "Begin event.";
 
   // get the primary vertex
-  edm::Handle<std::vector<reco::Vertex>> vertices_handle;
-  event.getByToken(m_vertices_token, vertices_handle);
-  const reco::Vertex& pv = (*vertices_handle)[0];
+  event.getByToken(m_vertices_token, m_vertices_handle);
+  const reco::Vertex& pv = (*m_vertices_handle)[0];
 
   ///////////////////////////
   //        LEPTONS        //

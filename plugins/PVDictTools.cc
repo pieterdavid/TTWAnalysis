@@ -1,3 +1,4 @@
+#include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
 
@@ -13,6 +14,31 @@
 #include "Helpers.h"
 
 namespace TTWAnalysis {
+/**
+ */
+class DictPVVars : public DictTool<reco::Vertex> {
+public:
+  DictPVVars(const edm::ParameterSet& config)
+    : DictTool<reco::Vertex>(config)
+  {}
+  virtual ~DictPVVars() {}
+
+  virtual Dict evaluate(const reco::Vertex& pv,
+      const edm::Event* /**/, const edm::EventSetup* /**/,
+      const ProducersManager* /**/, const AnalyzersManager* /**/, const CategoryManager* /**/) const override
+  {
+    Dict ret;
+    ret.add("ndof", pv.ndof());
+    ret.add("nchi2", pv.normalizedChi2());
+    ret.add("isFake", pv.isFake());
+    ret.add("isValid", pv.isFake());
+    ret.add("position", pv.position());
+    return ret;
+  }
+
+private:
+
+};
 /**
  * Impact parameter (significance) variables for electrons
  */
@@ -82,5 +108,6 @@ public:
 };
 }
 
+DEFINE_EDM_PLUGIN(TTWAnalysis::DictTool<reco::Vertex >::factory, TTWAnalysis::DictPVVars, "ttw_vertexPVVars");
 DEFINE_EDM_PLUGIN(TTWAnalysis::DictTool<pat::Electron>::factory, TTWAnalysis::DictElectronPVVars, "ttw_electronPVVars");
 DEFINE_EDM_PLUGIN(TTWAnalysis::DictTool<pat::Muon    >::factory, TTWAnalysis::DictMuonPVVars    , "ttw_muonPVVars");
