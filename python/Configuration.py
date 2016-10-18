@@ -48,25 +48,46 @@ def makeCategoryParams(llWPs=[], diLeptonTriggerMatch=False, addPassAll=False):
     return cms.PSet(**categs)
 
 ## Lepton identification and isolation working points
-el_ID_WPs  = odict((nm, "electronID('{0}')".format(sel))
-                    for nm,sel in [
-                      ("Veto"  , "cutBasedElectronID-Spring15-25ns-V1-standalone-veto")
-                    , ("Loose" , "cutBasedElectronID-Spring15-25ns-V1-standalone-loose")
-                    , ("Medium", "cutBasedElectronID-Spring15-25ns-V1-standalone-medium")
-                    , ("Tight" , "cutBasedElectronID-Spring15-25ns-V1-standalone-tight")
-                    ])
-mu_ID_WPs  = odict(Loose ="isLooseMuon",
-                   Medium="isMediumMuon",
-                   Tight ="( userInt('tightMuonID') != 0 )")
-mu_Iso_var = "( {iso}.sumChargedHadronPt + max(({iso}.sumNeutralHadronEt + {iso}.sumPhotonEt) - 0.5*({iso}.sumPUPt), 0.) ) / pt".format(iso="pfIsolationR04") # relativeIsoR04_deltaBeta
-mu_Iso_WPs = odict(Loose ="( ( {0} ) < .25 )".format(mu_Iso_var),
-                   Tight ="( ( {0} ) < .15 )".format(mu_Iso_var)
-                  )
+# cut-based
+# el_ID_WPs  = odict((nm, "electronID('{0}')".format(sel))
+#                     for nm,sel in [
+#                       ("Veto"  , "cutBasedElectronID-Spring15-25ns-V1-standalone-veto")
+#                     , ("Loose" , "cutBasedElectronID-Spring15-25ns-V1-standalone-loose")
+#                     , ("Medium", "cutBasedElectronID-Spring15-25ns-V1-standalone-medium")
+#                     , ("Tight" , "cutBasedElectronID-Spring15-25ns-V1-standalone-tight")
+#                     ])
+el_ID_MVA_name = "ElectronMVAEstimatorRun2Spring15NonTrig25nsV1Values"
+el_ID_WPs  = odict(Loose=" && ".join("( {0} )".format(cut) for cut in [
+    # pt and eta applied separately
+      'abs(userFloat("dxy")) < .05'
+    , 'abs(userFloat("dz"))  < .1'
+    , 'abs(userFloat("dca")) < 8.'
+    , '( (userFloat("{0}")>-.92)&&((abs(eta)>1.479)||((userFloat("{0}")>-.83)&&((abs(eta)>.8)||(userFloat("{0}")>-.7)))) )'.format(el_ID_MVA_name)
+    ]))
+# POG cut-based ID
+# mu_ID_WPs  = odict(Loose ="isLooseMuon",
+#                    Medium="isMediumMuon",
+#                    Tight ="( userInt('tightMuonID') != 0 )")
+mu_ID_WPs  = odict(Loose=" && ".join("( {0} )".format(cut) for cut in [
+    # pt and eta applied separately
+      'abs(userFloat("dxy")) < .05'
+    , 'abs(userFloat("dz"))  < .1'
+    , 'abs(userFloat("dca")) < 8.'
+    , 'isLooseMuon'
+    ]))
+## POG isolation
+# mu_Iso_var = "( {iso}.sumChargedHadronPt + max(({iso}.sumNeutralHadronEt + {iso}.sumPhotonEt) - 0.5*({iso}.sumPUPt), 0.) ) / pt".format(iso="pfIsolationR04") # relativeIsoR04_deltaBeta
+# mu_Iso_WPs = odict(Loose ="( ( {0} ) < .25 )".format(mu_Iso_var),
+#                    Tight ="( ( {0} ) < .15 )".format(mu_Iso_var)
+#                   )
 el_Iso_WPs = odict(Loose = "1 == 1",
                    Tight = "1 == 0"
                   )
+# ttH_multilepton isolation
+mu_Iso_WPs = odict(Loose = '( userFloat("miniIso_Rel_rhoArea") < .4 )')
+el_Iso_WPs = odict(Loose = '( userFloat("miniIso_Rel_rhoArea") < .4 )')
 ## format: { (IDnm, ISOnm) : (el-cutStr, mu-cutStr) }
-lepton_WPs = odict(((idKy[0], isoKy[0]), ("( {id} && {iso} )".format(id=el_ID_WPs[idKy], iso=el_Iso_WPs[isoKy]), "( {id} && {iso} )".format(id=mu_ID_WPs[idKy], iso=mu_Iso_WPs[isoKy]))) for idKy,isoKy in product(("Loose", "Medium"), ("Loose",)))
+lepton_WPs = odict(((idKy[0], isoKy[0]), ("( {id} && {iso} )".format(id=el_ID_WPs[idKy], iso=el_Iso_WPs[isoKy]), "( {id} && {iso} )".format(id=mu_ID_WPs[idKy], iso=mu_Iso_WPs[isoKy]))) for idKy,isoKy in product(("Loose",), ("Loose",)))
 
 ## Jet ID: https://twiki.cern.ch/twiki/bin/view/CMS/JetID#Recommendations_for_13_TeV_data
 JetIDDefs = dict((k,v.format(
@@ -174,15 +195,17 @@ def addTTWCandidatesAnalyzer(framework, name="fillLists", prefix=""):
                                 Cuts=cms.PSet(**dict(("ID{0}".format(wpNm), cms.string(wpSel)) for wpNm, wpSel in el_ID_WPs.iteritems()))
                                 )),
                             IDVars=cms.PSet(type=cms.string("ttw_electronIDVars"),parameters=cms.PSet()),
+                            PVVars=cms.PSet(type=cms.string("ttw_electronHybridFunctions"), parameters=cms.PSet(
+                                Functions=cms.PSet(**dict((nm, cms.string('userFloat("{0}")'.format(nm))) for nm in ("dxy", "dz", "dca"))))),
                             Iso=cms.PSet(type=cms.string("ttw_electronIso"), parameters=cms.PSet(
                                 ea_R03 = cms.untracked.FileInPath("RecoEgamma/ElectronIdentification/data/PHYS14/effAreaElectrons_cone03_pfNeuHadronsAndPhotons.txt"),
                                 ea_R04 = cms.untracked.FileInPath("cp3_llbb/Framework/data/effAreaElectrons_cone04_pfNeuHadronsAndPhotons.txt")
                                 )),
                             MiniIso=cms.PSet(type=cms.string("ttw_electronHybridFunctions"), parameters=cms.PSet(
-                                Functions=cms.PSet(**dict((nm, cms.string('userFloat("{0}")'.format(nm))) for nm in chain(
-                                    ("miniIsoR", "miniAbsIsoCharged", "miniAbsIsoPho", "miniAbsIsoNHad", "miniAbsIsoPU"),
+                                Functions=cms.PSet(**dict(("miniIso_{0}".format(nm), cms.string('userFloat("miniIso_{0}")'.format(nm))) for nm in chain(
+                                    ("R", "AbsCharged", "AbsPho", "AbsNHad", "AbsPU"),
                                     ("_".join((chnabsrel, strat))
-                                        for chnabsrel in ("miniAbsIsoNeutral", "miniAbsIso", "miniRelIso")
+                                        for chnabsrel in ("AbsNeutral", "Abs", "Rel")
                                         for strat in ("weights", "raw", "rhoArea", "deltaBeta"))
                                     )))
                                 )),
@@ -215,15 +238,17 @@ def addTTWCandidatesAnalyzer(framework, name="fillLists", prefix=""):
                                 Cuts=cms.PSet(**dict(("ID{0}".format(wpNm), cms.string(wpSel)) for wpNm, wpSel in mu_ID_WPs.iteritems()))
                                 )),
                             IDVars=cms.PSet(type=cms.string("ttw_muonIDVars"),parameters=cms.PSet()),
+                            PVVars=cms.PSet(type=cms.string("ttw_muonHybridFunctions"), parameters=cms.PSet(
+                                Functions=cms.PSet(**dict((nm, cms.string('userFloat("{0}")'.format(nm))) for nm in ("dxy", "dz", "dca"))))),
                             Iso=cms.PSet(type=cms.string("ttw_muonIso"), parameters=cms.PSet(
                                 ea_R03=cms.untracked.FileInPath("cp3_llbb/Framework/data/effAreaMuons_cone03_pfNeuHadronsAndPhotons.txt"),
                                 ea_R04=cms.untracked.FileInPath("cp3_llbb/Framework/data/effAreaMuons_cone04_pfNeuHadronsAndPhotons.txt"),
                                 )),
                             MiniIso=cms.PSet(type=cms.string("ttw_muonHybridFunctions"), parameters=cms.PSet(
-                                Functions=cms.PSet(**dict((nm, cms.string('userFloat("{0}")'.format(nm))) for nm in chain(
-                                    ("miniIsoR", "miniAbsIsoCharged", "miniAbsIsoPU"),
+                                Functions=cms.PSet(**dict(("miniIso_{0}".format(nm), cms.string('userFloat("miniIso_{0}")'.format(nm))) for nm in chain(
+                                    ("R", "AbsCharged", "AbsPU"),
                                     ("_".join((chnabsrel, strat))
-                                        for chnabsrel in ("miniAbsIsoNeutral", "miniAbsIso", "miniRelIso")
+                                        for chnabsrel in ("AbsNeutral", "Abs", "Rel")
                                         for strat in ("weights", "raw", "rhoArea", "deltaBeta"))
                                     )))
                                 )),
@@ -356,6 +381,7 @@ def customizeProducers(framework):
         parameters=cms.PSet(
             input=cms.InputTag("slimmedElectrons"),
             DictTools=cms.PSet(
+                PVVars=cms.PSet(type=cms.string("ttw_electronPVVars"),parameters=cms.PSet()),
                 MiniIso=cms.PSet(type=cms.string("ttw_electronMiniIso"), parameters=cms.PSet(
                     ea=cms.untracked.FileInPath("RecoEgamma/ElectronIdentification/data/Spring15/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_25ns.txt"),
                     rho=cms.untracked.InputTag("fixedGridRhoFastjetCentralNeutral"),
@@ -370,6 +396,7 @@ def customizeProducers(framework):
         parameters=cms.PSet(
             input=cms.InputTag("slimmedMuons"),
             DictTools=cms.PSet(
+                PVVars=cms.PSet(type=cms.string("ttw_muonPVVars"),parameters=cms.PSet()),
                 MiniIso=cms.PSet(type=cms.string("ttw_muonMiniIso"), parameters=cms.PSet(
                     ea=cms.untracked.FileInPath("cp3_llbb/TTWAnalysis/data/effAreaMuons_cone03_pfNeuHadronsAndPhotons_Spring15_25ns.txt"),
                     rho=cms.untracked.InputTag("fixedGridRhoFastjetCentralNeutral"),

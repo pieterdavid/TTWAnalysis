@@ -111,17 +111,17 @@ TTWAnalysis::Dict TTWAnalysis::DictElectronMiniIsolation::evaluate(const pat::El
   double isoNeutralDeltaBeta{std::max(0., isoNeutralRaw - 0.5*absIsoPU)};
   //
   TTWAnalysis::Dict ret{};
-  ret.add("miniIsoR", outerR);
-  ret.add("miniAbsIsoCharged", absIsoCharged);
-  ret.add("miniAbsIsoPho"    , isoPhotRaw);
-  ret.add("miniAbsIsoNHad"   , isoNHadRaw);
-  ret.add("miniAbsIsoPU"     , absIsoPU);
+  ret.add("miniIso_R", outerR);
+  ret.add("miniIso_AbsCharged", absIsoCharged);
+  ret.add("miniIso_AbsPho"    , isoPhotRaw);
+  ret.add("miniIso_AbsNHad"   , isoNHadRaw);
+  ret.add("miniIso_AbsPU"     , absIsoPU);
   //
   auto addNeutralAbsRel = [&ret,absIsoCharged,&cand] (double neuIsoAbs, std::string postfix)
   {
-    ret.add("miniAbsIsoNeutral_"+postfix, neuIsoAbs);
-    ret.add("miniAbsIso_"+postfix, absIsoCharged+neuIsoAbs);
-    ret.add("miniRelIso_"+postfix, (absIsoCharged+neuIsoAbs)/cand.pt());
+    ret.add("miniIso_AbsNeutral_"+postfix, neuIsoAbs);
+    ret.add("miniIso_Abs_"+postfix, absIsoCharged+neuIsoAbs);
+    ret.add("miniIso_Rel_"+postfix, (absIsoCharged+neuIsoAbs)/cand.pt());
   };
   addNeutralAbsRel(isoNeutralWeights  , "weights"  );
   addNeutralAbsRel(isoNeutralRaw      , "raw"      );
@@ -152,15 +152,15 @@ TTWAnalysis::Dict TTWAnalysis::DictMuonMiniIsolation:: evaluate(const pat::Muon&
   const double isoNeutralDeltaBeta{std::max(0., isoNeutralRaw - 0.5*absIsoPU)};
   //
   TTWAnalysis::Dict ret{};
-  ret.add("miniIsoR", outerR);
-  ret.add("miniAbsIsoCharged", absIsoCharged);
-  ret.add("miniAbsIsoPU"     , absIsoPU);
+  ret.add("miniIso_R", outerR);
+  ret.add("miniIso_AbsCharged", absIsoCharged);
+  ret.add("miniIso_AbsPU"     , absIsoPU);
   //
   auto addNeutralAbsRel = [&ret,absIsoCharged,&cand] (double neuIsoAbs, std::string postfix)
   {
-    ret.add("miniAbsIsoNeutral_"+postfix, neuIsoAbs);
-    ret.add("miniAbsIso_"+postfix, absIsoCharged+neuIsoAbs);
-    ret.add("miniRelIso_"+postfix, (absIsoCharged+neuIsoAbs)/cand.pt());
+    ret.add("miniIso_AbsNeutral_"+postfix, neuIsoAbs);
+    ret.add("miniIso_Abs_"+postfix, absIsoCharged+neuIsoAbs);
+    ret.add("miniIso_Rel_"+postfix, (absIsoCharged+neuIsoAbs)/cand.pt());
   };
   addNeutralAbsRel(isoNeutralWeights  , "weights"  );
   addNeutralAbsRel(isoNeutralRaw      , "raw"      );

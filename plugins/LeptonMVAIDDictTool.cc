@@ -240,8 +240,8 @@ TTWAnalysis::Dict TTWAnalysis::DictTTHElectronMVA::evaluate(const pat::Electron&
   getVar("LepGood_pt"                   ) = cand.pt();
   getVar("LepGood_eta"                  ) = eta;
   getVar("LepGood_jetNDauChargedMVASel" ) = jetNDauChargedMVASel;
-  getVar("LepGood_miniRelIsoCharged"    ) = elValid ? cand.userFloat("miniAbsIsoCharged")/cand.pt() : -1.;
-  getVar("LepGood_miniRelIsoNeutral"    ) = elValid ? cand.userFloat("miniAbsIsoNeutral_rhoArea")/cand.pt() : -1.;
+  getVar("LepGood_miniRelIsoCharged"    ) = elValid ? cand.userFloat("miniIso_AbsCharged")/cand.pt() : -1.;
+  getVar("LepGood_miniRelIsoNeutral"    ) = elValid ? cand.userFloat("miniIso_AbsNeutral_rhoArea")/cand.pt() : -1.;
   getVar("LepGood_jetPtRelv2"           ) = ptRelv2(jet, cand.p4());
   getVar("min(LepGood_jetPtRatiov2,1.5)") = std::min(cand.pt()/jetLepAwareJEC(jet, cand.p4()).Pt(), 1.5);
   getVar("max(LepGood_jetBTagCSV,0)"    ) = std::max(jet ? jet->bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags") : -99., 0.);
@@ -292,8 +292,8 @@ TTWAnalysis::Dict TTWAnalysis::DictTTHMuonMVA::evaluate(const pat::Muon& cand,
   getVar("LepGood_pt"                   ) = cand.pt();
   getVar("LepGood_eta"                  ) = cand.eta();
   getVar("LepGood_jetNDauChargedMVASel" ) = jetNDauChargedMVASel;
-  getVar("LepGood_miniRelIsoCharged"    ) = muValid ? cand.userFloat("miniAbsIsoCharged")/cand.pt() : -1.;
-  getVar("LepGood_miniRelIsoNeutral"    ) = muValid ? cand.userFloat("miniAbsIsoNeutral_rhoArea")/cand.pt() : -1.;
+  getVar("LepGood_miniRelIsoCharged"    ) = muValid ? cand.userFloat("miniIso_AbsCharged")/cand.pt() : -1.;
+  getVar("LepGood_miniRelIsoNeutral"    ) = muValid ? cand.userFloat("miniIso_AbsNeutral_rhoArea")/cand.pt() : -1.;
   getVar("LepGood_jetPtRelv2"           ) = ptRelv2(jet, cand.p4());
   getVar("min(LepGood_jetPtRatiov2,1.5)") = std::min(cand.pt()/jetLepAwareJEC(jet, cand.p4()).Pt(), 1.5);
   getVar("max(LepGood_jetBTagCSV,0)"    ) = std::max(jet ? jet->bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags") : -99., 0.);
