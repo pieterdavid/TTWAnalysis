@@ -49,13 +49,13 @@ def makeCategoryParams(llWPs=[], diLeptonTriggerMatch=False, addPassAll=False):
 
 ## Lepton identification and isolation working points
 # cut-based
-# el_ID_WPs  = odict((nm, "electronID('{0}')".format(sel))
-#                     for nm,sel in [
-#                       ("Veto"  , "cutBasedElectronID-Spring15-25ns-V1-standalone-veto")
-#                     , ("Loose" , "cutBasedElectronID-Spring15-25ns-V1-standalone-loose")
-#                     , ("Medium", "cutBasedElectronID-Spring15-25ns-V1-standalone-medium")
-#                     , ("Tight" , "cutBasedElectronID-Spring15-25ns-V1-standalone-tight")
-#                     ])
+el_ID_WPs_POG  = odict((nm, "electronID('{0}')".format(sel))
+                    for nm,sel in [
+                      ("Veto"  , "cutBasedElectronID-Spring15-25ns-V1-standalone-veto")
+                    , ("Loose" , "cutBasedElectronID-Spring15-25ns-V1-standalone-loose")
+                    , ("Medium", "cutBasedElectronID-Spring15-25ns-V1-standalone-medium")
+                    , ("Tight" , "cutBasedElectronID-Spring15-25ns-V1-standalone-tight")
+                    ])
 el_ID_MVA_name = "ElectronMVAEstimatorRun2Spring15NonTrig25nsV1Values"
 el_ID_WPs  = odict(Loose=" && ".join("( {0} )".format(cut) for cut in [
     # pt and eta applied separately
@@ -65,9 +65,9 @@ el_ID_WPs  = odict(Loose=" && ".join("( {0} )".format(cut) for cut in [
     , '( (userFloat("{0}")>-.92)&&((abs(eta)>1.479)||((userFloat("{0}")>-.83)&&((abs(eta)>.8)||(userFloat("{0}")>-.7)))) )'.format(el_ID_MVA_name)
     ]))
 # POG cut-based ID
-# mu_ID_WPs  = odict(Loose ="isLooseMuon",
-#                    Medium="isMediumMuon",
-#                    Tight ="( userInt('tightMuonID') != 0 )")
+mu_ID_WPs_POG = odict(Loose ="isLooseMuon",
+                      Medium="isMediumMuon",
+                      Tight ="( userInt('tightMuonID') != 0 )")
 mu_ID_WPs  = odict(Loose=" && ".join("( {0} )".format(cut) for cut in [
     # pt and eta applied separately
       'abs(userFloat("dxy")) < .05'
@@ -198,8 +198,10 @@ def addTTWCandidatesAnalyzer(framework, name="fillLists", prefix=""):
                             Kin=cms.PSet(type=cms.string("ttw_electronKin"), parameters=cms.PSet()),
                             Gen=cms.PSet(type=cms.string("ttw_electronGenMatch"), parameters=cms.PSet()),
                             ID =cms.PSet(type=cms.string("ttw_electronHybridCuts"), parameters=cms.PSet(
-                                Cuts=cms.PSet(**dict(("ID{0}".format(wpNm), cms.string(wpSel)) for wpNm, wpSel in el_ID_WPs.iteritems()))
-                                )),
+                                Cuts=cms.PSet(**dict(chain(
+                                    (("ID{0}".format(wpNm), cms.string(wpSel)) for wpNm, wpSel in el_ID_WPs.iteritems()),
+                                    (("POGID{0}".format(wpNm), cms.string(wpSel)) for wpNm, wpSel in el_ID_WPs_POG.iteritems())
+                                ))))),
                             IDVars=cms.PSet(type=cms.string("ttw_electronIDVars"),parameters=cms.PSet()),
                             PVVars=cms.PSet(type=cms.string("ttw_electronHybridFunctions"), parameters=cms.PSet(
                                 Functions=cms.PSet(**dict((nm, cms.string('userFloat("{0}")'.format(nm))) for nm in ("dxy", "dz", "dca"))))),
@@ -241,8 +243,10 @@ def addTTWCandidatesAnalyzer(framework, name="fillLists", prefix=""):
                             Kin=cms.PSet(type=cms.string("ttw_muonKin"), parameters=cms.PSet()),
                             Gen=cms.PSet(type=cms.string("ttw_muonGenMatch"), parameters=cms.PSet()),
                             ID =cms.PSet(type=cms.string("ttw_muonHybridCuts"), parameters=cms.PSet(
-                                Cuts=cms.PSet(**dict(("ID{0}".format(wpNm), cms.string(wpSel)) for wpNm, wpSel in mu_ID_WPs.iteritems()))
-                                )),
+                                Cuts=cms.PSet(**dict(chain(
+                                    (("ID{0}".format(wpNm), cms.string(wpSel)) for wpNm, wpSel in mu_ID_WPs.iteritems()),
+                                    (("POGID{0}".format(wpNm), cms.string(wpSel)) for wpNm, wpSel in mu_ID_WPs_POG.iteritems())
+                                ))))),
                             IDVars=cms.PSet(type=cms.string("ttw_muonIDVars"),parameters=cms.PSet()),
                             PVVars=cms.PSet(type=cms.string("ttw_muonHybridFunctions"), parameters=cms.PSet(
                                 Functions=cms.PSet(**dict((nm, cms.string('userFloat("{0}")'.format(nm))) for nm in ("dxy", "dz", "dca"))))),
