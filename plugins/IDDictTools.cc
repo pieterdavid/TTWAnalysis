@@ -67,6 +67,49 @@ public:
 };
 
 /**
+ * 2016 electron MVA ID
+ * https://twiki.cern.ch/twiki/bin/view/CMS/MultivariateElectronIdentificationRun2#General_Purpose_MVA_training_det
+ */
+class DictElectronMVAID : public DictTool<pat::Electron> {
+public:
+  DictElectronMVAID(const edm::ParameterSet& config)
+    : DictTool<pat::Electron>(config)
+  {}
+  virtual ~DictElectronMVAID() {}
+
+  virtual void doConsumes(const edm::ParameterSet& config, edm::ConsumesCollector&& collector) override
+  {
+    m_values = collector.consumes<edm::ValueMap<float>>(config.getParameter<edm::InputTag>("values"));
+    m_categories = collector.consumes<edm::ValueMap<int>>(config.getParameter<edm::InputTag>("categories"));
+  }
+
+  virtual Dict evaluate(edm::Ptr<pat::Electron> el,
+      const edm::Event* event, const edm::EventSetup* /**/,
+      const ProducersManager* /**/, const AnalyzersManager* /**/, const CategoryManager* /**/) const override
+  {
+    const bool valid{el.isNonnull()};
+
+    edm::Handle<edm::ValueMap<float>> values;
+    edm::Handle<edm::ValueMap<int>> categories;
+
+    Dict ret;
+    if ( event && ( ! m_values.isUninitialized() ) ) {
+      event->getByToken(m_values, values);
+      event->getByToken(m_categories, categories);
+      if ( valid ) {
+        ret.add("MVAID_value", (*values)[el]);
+        ret.add("MVAID_category", (*categories)[el]);
+      }
+    }
+
+    return ret;
+  }
+private:
+  edm::EDGetTokenT<edm::ValueMap<float>> m_values;
+  edm::EDGetTokenT<edm::ValueMap<int>> m_categories;
+};
+
+/**
  * Additional muon identification variables
  */
 class DictMuonIDVars : public DictTool<pat::Muon> {
