@@ -55,7 +55,11 @@ public:
   {
     const auto& cutsConfig = config.getParameter<edm::ParameterSet>("Cuts");
     for ( const auto& iName : cutsConfig.getParameterNames() ) {
-      m_cuts.emplace(iName, HybridCut{cutsConfig.getParameter<std::string>(iName)});
+      try {
+        m_cuts.emplace(iName, HybridCut{cutsConfig.getParameter<std::string>(iName)});
+      } catch (const edm::Exception& error) {
+        throw edm::Exception(edm::errors::Configuration) << "Problem parsing '" << cutsConfig.getParameter<std::string>(iName) << "' : " << error.message();
+      }
     }
   }
   virtual ~DictHybridCuts() {}
