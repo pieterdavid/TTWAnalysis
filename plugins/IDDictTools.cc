@@ -22,45 +22,45 @@ public:
   {}
   virtual ~DictElectronIDVars() {}
 
-  virtual Dict evaluate(const pat::Electron& el,
+  virtual Dict evaluate(edm::Ptr<pat::Electron> el,
       const edm::Event* event, const edm::EventSetup* /**/,
       const ProducersManager* /**/, const AnalyzersManager* /**/, const CategoryManager* /**/) const override
   {
-    bool elValid{el.originalObjectRef().isNonnull()};
-    double eta = elValid ? el.superCluster()->eta() : 0.;
+    const bool valid{el.isNonnull() && el->originalObjectRef().isNonnull()};
+    const double eta = valid ? el->superCluster()->eta() : 0.;
 
     Dict ret;
-    ret.add("isEB", el.isEB());
-    ret.add("isEE", el.isEE());
+    ret.add("isEB", valid ? el->isEB() : false);
+    ret.add("isEE", valid ? el->isEE() : false);
 
     // electron trigger emulation
     //     https://github.com/peruzzim/cmgtools-lite/blob/76X_for2016basis/TTHAnalysis/python/tools/functionsTTH.py#L10-L20
     bool passTrigEmu{false};
-    if ( elValid ) {
-      double eInvMinusPInv = el.ecalEnergy() > 0. ? (1.0/el.ecalEnergy() - el.eSuperClusterOverP()/el.ecalEnergy()) : 9.e9;
+    if ( valid ) {
+      double eInvMinusPInv = el->ecalEnergy() > 0. ? (1.0/el->ecalEnergy() - el->eSuperClusterOverP()/el->ecalEnergy()) : 9.e9;
       if ( std::abs(eta) < 1.479 ) {
         passTrigEmu = (
-              ( el.hadronicOverEm() < 0.10 )
-           && ( std::abs(el.deltaEtaSuperClusterTrackAtVtx()) < 0.01 )
-           && ( std::abs(el.deltaPhiSuperClusterTrackAtVtx()) < 0.04 )
+              ( el->hadronicOverEm() < 0.10 )
+           && ( std::abs(el->deltaEtaSuperClusterTrackAtVtx()) < 0.01 )
+           && ( std::abs(el->deltaPhiSuperClusterTrackAtVtx()) < 0.04 )
            && ( -0.05 < eInvMinusPInv ) && ( eInvMinusPInv < 0.01 )
-           && ( el.full5x5_sigmaIetaIeta() < 0.011 )
+           && ( el->full5x5_sigmaIetaIeta() < 0.011 )
            );
       } else {
         passTrigEmu = (
-              ( el.hadronicOverEm() < 0.07 )
-           && ( std::abs(el.deltaEtaSuperClusterTrackAtVtx()) < 0.008 )
-           && ( std::abs(el.deltaPhiSuperClusterTrackAtVtx()) < 0.07 )
+              ( el->hadronicOverEm() < 0.07 )
+           && ( std::abs(el->deltaEtaSuperClusterTrackAtVtx()) < 0.008 )
+           && ( std::abs(el->deltaPhiSuperClusterTrackAtVtx()) < 0.07 )
            && ( -0.05 < eInvMinusPInv ) && ( eInvMinusPInv < 0.005 )
-           && ( el.full5x5_sigmaIetaIeta() < 0.030 )
+           && ( el->full5x5_sigmaIetaIeta() < 0.030 )
            );
       }
     }
     ret.add("TrigEmu", passTrigEmu);
 
-    ret.add("NMissInner", elValid ? el.gsfTrack()->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS) : 0 );
-    ret.add("passConversionVeto", el.passConversionVeto());
-    ret.add("ThreeChargeAgreement", el.isGsfCtfScPixChargeConsistent()); // ??
+    ret.add("NMissInner", valid && el->gsfTrack().isNonnull() ? el->gsfTrack()->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS) : 0 );
+    ret.add("passConversionVeto", valid ? el->passConversionVeto() : false);
+    ret.add("ThreeChargeAgreement", valid ? el->isGsfCtfScPixChargeConsistent() : false); // ??
 
     return ret;
   }
@@ -76,14 +76,14 @@ public:
   {}
   virtual ~DictMuonIDVars() {}
 
-  virtual Dict evaluate(const pat::Muon& mu,
+  virtual Dict evaluate(edm::Ptr<pat::Muon> mu,
       const edm::Event* event, const edm::EventSetup* /**/,
       const ProducersManager* /**/, const AnalyzersManager* /**/, const CategoryManager* /**/) const override
   {
-    bool muValid{mu.originalObjectRef().isNonnull()};
+    const bool valid{mu.isNonnull() && mu->originalObjectRef().isNonnull()};
 
     Dict ret;
-    ret.add("DPToPT", muValid && mu.innerTrack().isNonnull() ? mu.innerTrack()->ptError()/mu.innerTrack()->pt() : 0);
+    ret.add("DPToPT", valid && mu->innerTrack().isNonnull() ? mu->innerTrack()->ptError()/mu->innerTrack()->pt() : 0);
 
     return ret;
   }
@@ -104,19 +104,19 @@ public:
   }
   virtual ~DictJetIDVars() {}
 
-  virtual Dict evaluate(const pat::Jet& jet,
+  virtual Dict evaluate(edm::Ptr<pat::Jet> jet,
       const edm::Event* /**/, const edm::EventSetup* /**/,
       const ProducersManager* /**/, const AnalyzersManager* /**/, const CategoryManager* /**/) const override
   {
     Dict ret;
-    bool valid{jet.originalObjectRef().isNonnull()};
-    ret.add("jecFactor"   , valid ? jet.jecFactor(0) : 0);
-    ret.add("area"        , jet.jetArea());
-    ret.add("partonFlavor", jet.partonFlavour());
-    ret.add("hadronFlavor", jet.hadronFlavour());
-    ret.add("puJetID"     , valid ? jet.userFloat("pileupJetId:fullDiscriminant") : 0);
+    const bool valid{jet.isNonnull() && jet->originalObjectRef().isNonnull()};
+    ret.add("jecFactor"   , valid ? jet->jecFactor(0) : 0);
+    ret.add("area"        , valid ? jet->jetArea() : -1.);
+    ret.add("partonFlavor", valid ? jet->partonFlavour() : -10);
+    ret.add("hadronFlavor", valid ? jet->hadronFlavour() : -10);
+    ret.add("puJetID"     , valid ? jet->userFloat("pileupJetId:fullDiscriminant") : 0);
     for ( const auto& varNm : m_bTaggers ) {
-      ret.add(varNm.first, valid ? jet.bDiscriminator(varNm.second) : 0);
+      ret.add(varNm.first, valid ? jet->bDiscriminator(varNm.second) : 0);
     }
     return ret;
   }
