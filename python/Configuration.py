@@ -8,9 +8,9 @@ from itertools import product, tee, chain
 
 import FWCore.ParameterSet.Config as cms
 
-dileptonTriggers = { ## TODO check for 2016
-      "ElEl" : ["HLT_Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v.*"]
-    , "ElMu" : ["HLT_Mu17_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v.*", "HLT_Mu8_TrkIsoVVL_Ele17_CaloIdL_TrackIdL_IsoVL_v.*"]
+dileptonTriggers = {
+      "ElEl" : ["HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v.*"]
+    , "ElMu" : ["HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v*", "HLT_Mu(8|12)_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v.*"]
     , "MuMu" : ["HLT_Mu17_TrkIsoVVL_(Tk)?Mu8_TrkIsoVVL_DZ_v.*"]
     }
 dileptonTriggers["MuEl"] = dileptonTriggers["ElMu"]
@@ -299,16 +299,14 @@ def addTTWCandidatesAnalyzer(framework, name="fillLists", prefix=""):
                         DictTools=cms.PSet(
                             Basic=cms.PSet(type=cms.string("ttw_leptonCandidate"), parameters=cms.PSet()),
                             HLT  =cms.PSet(type=cms.string("ttw_leptonHLTMatch"), parameters=cms.PSet(Selections=cms.PSet(
-                                HLTMatch_SingleMu=cms.vstring(["HLT_IsoMu20_v.*", "HLT_IsoTkMu20_v.*"]), ## TODO check triggers for 2016
-                                HLTMatch_SingleEl=cms.vstring(["HLT_Ele23_WPLoose_Gsf_v*"]),
-                                HLTMatch_SingleElMC=cms.vstring(["HLT_Ele23_CaloIdL_TrackIdL_IsoVL_v.*"]),
+                                HLTMatch_SingleMu=cms.vstring(["HLT_Iso(Tk)?Mu24_v.*"]),
+                                HLTMatch_SingleEl=cms.vstring(["HLT_Ele32_eta2p1_WPTight_Gsf_v.*"]),
                                 ))),
                             HLT2 =cms.PSet(type=cms.string("ttw_leptonHLTMatchv2"), parameters=cms.PSet(
                                 triggers=cms.untracked.FileInPath("cp3_llbb/TTWAnalysis/data/trigger.xml"),
                                 Selections=cms.PSet(
-                                    HLTMatch2_SingleMu=cms.vstring(["HLT_IsoMu20_v.*", "HLT_IsoTkMu20_v.*"]),
-                                    HLTMatch2_SingleEl=cms.vstring(["HLT_Ele23_WPLoose_Gsf_v*"]),
-                                    HLTMatch2_SingleElMC=cms.vstring(["HLT_Ele23_CaloIdL_TrackIdL_IsoVL_v.*"]),
+                                    HLTMatch2_SingleMu=cms.vstring(["HLT_Iso(Tk)?Mu24_v.*"]),
+                                    HLTMatch2_SingleEl=cms.vstring(["HLT_Ele32_eta2p1_WPTight_Gsf_v.*"]),
                                     ),
                                 hltDRCut = cms.untracked.double(0.3), # DeltaR cut for trigger matching
                                 hltDPtCut = cms.untracked.double(0.5), #Delta(Pt)/Pt cut for trigger matching

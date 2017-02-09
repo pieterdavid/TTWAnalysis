@@ -226,7 +226,7 @@ void TTWAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& setup,
       pat::Electron* elNonConst = const_cast<pat::Electron*>(iEl.get());
       for ( std::size_t i{0}; i != el_vids.size(); ++i ) {
         try {
-          elNonConst->addUserInt(m_el_vidTokens[i].first, (*(el_vids[i]))[iEl]);
+          elNonConst->addUserInt(m_el_vidTokens[i].first, ( (*(el_vids[i]))[iEl] ) ? 1 : 0);
         } catch ( const edm::Exception& e ) {
           std::stringstream msg;
           msg << "Problem getting id '" << m_el_vidTokens[i].first << "' for electron " << iEl.key() << " from " << iEl.id();
