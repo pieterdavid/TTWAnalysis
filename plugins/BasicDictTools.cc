@@ -113,7 +113,7 @@ public:
       const ProducersManager* /**/, const AnalyzersManager* /**/, const CategoryManager* /**/) const override
   {
     Dict ret{};
-    bool valid{cand.isNonnull() && cand->originalObjectRef().isNonnull()};
+    bool valid{cand.isNonnull()};
     for ( const auto& nmAndFun : m_funs ) {
       ret.add(nmAndFun.first, valid ? nmAndFun.second(*cand) : 0.);
     }

@@ -26,7 +26,7 @@ public:
       const edm::Event* event, const edm::EventSetup* /**/,
       const ProducersManager* /**/, const AnalyzersManager* /**/, const CategoryManager* /**/) const override
   {
-    const bool valid{el.isNonnull() && el->originalObjectRef().isNonnull()};
+    const bool valid{el.isNonnull() && el->superCluster().isNonnull()};
     const double eta = valid ? el->superCluster()->eta() : 0.;
 
     Dict ret;
@@ -123,7 +123,7 @@ public:
       const edm::Event* event, const edm::EventSetup* /**/,
       const ProducersManager* /**/, const AnalyzersManager* /**/, const CategoryManager* /**/) const override
   {
-    const bool valid{mu.isNonnull() && mu->originalObjectRef().isNonnull()};
+    const bool valid{mu.isNonnull() && mu->innerTrack().isNonnull()};
 
     Dict ret;
     ret.add("DPToPT", valid && mu->innerTrack().isNonnull() ? mu->innerTrack()->ptError()/mu->innerTrack()->pt() : 0);
@@ -152,7 +152,7 @@ public:
       const ProducersManager* /**/, const AnalyzersManager* /**/, const CategoryManager* /**/) const override
   {
     Dict ret;
-    const bool valid{jet.isNonnull() && jet->originalObjectRef().isNonnull()};
+    const bool valid{jet.isNonnull()};
     ret.add("jecFactor"   , valid ? jet->jecFactor(0) : 0);
     ret.add("area"        , valid ? jet->jetArea() : -1.);
     ret.add("partonFlavor", valid ? jet->partonFlavour() : -10);

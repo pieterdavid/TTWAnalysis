@@ -216,7 +216,7 @@ TTWAnalysis::Dict TTWAnalysis::DictTTHElectronMVA::evaluate(edm::Ptr<pat::Electr
     const edm::Event* event, const edm::EventSetup* /**/,
     const ProducersManager* /**/, const AnalyzersManager* /**/, const CategoryManager* /**/) const
 {
-  const bool valid{cand.isNonnull() && cand->originalObjectRef().isNonnull()};
+  const bool valid{cand.isNonnull() && cand->superCluster().isNonnull()};
   const double eta = valid ? cand->superCluster()->eta() : 0.;
   const reco::Vertex* pv = event ? getPV(event) : nullptr;
 
@@ -245,9 +245,9 @@ TTWAnalysis::Dict TTWAnalysis::DictTTHElectronMVA::evaluate(edm::Ptr<pat::Electr
   getVar("LepGood_jetPtRelv2"           ) = valid ? ptRelv2(jet, cand->p4()) : -1.;
   getVar("min(LepGood_jetPtRatiov2,1.5)") = valid ? std::min(cand->pt()/jetLepAwareJEC(jet, cand->p4()).Pt(), 1.5) : -1.;
   getVar("max(LepGood_jetBTagCSV,0)"    ) = std::max(jet ? jet->bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags") : -99., 0.);
-  getVar("LepGood_sip3d"                ) = valid ? std::abs(cand->dB(pat::Electron::PV3D)/cand->edB(pat::Electron::PV3D)) : -1;
-  getVar("log(abs(LepGood_dxy))"        ) = pv && valid ? std::log(std::abs(cand->gsfTrack()->dxy(pv->position()))) : 0.; // TODO check definition
-  getVar("log(abs(LepGood_dz))"         ) = pv && valid ? std::log(std::abs(cand->gsfTrack()->dz (pv->position()))) : 0.;
+  getVar("LepGood_sip3d"                ) = valid ? std::abs(cand->userFloat("dca")) : -1;
+  getVar("log(abs(LepGood_dxy))"        ) = valid ? std::log(std::abs(cand->userFloat("dxy"))) : 0.;
+  getVar("log(abs(LepGood_dz))"         ) = valid ? std::log(std::abs(cand->userFloat("dz" ))) : 0.;
   getVar("LepGood_mvaIdSpring15"        ) = valid ? cand->userFloat("ElectronMVAEstimatorRun2Spring15NonTrig25nsV1Values") : -1.;
 
   TTWAnalysis::Dict ret{};
@@ -269,7 +269,7 @@ TTWAnalysis::Dict TTWAnalysis::DictTTHMuonMVA::evaluate(edm::Ptr<pat::Muon> cand
     const edm::Event* event, const edm::EventSetup* /**/,
     const ProducersManager* /**/, const AnalyzersManager* /**/, const CategoryManager* /**/) const
 {
-  const bool valid{cand.isNonnull() && cand->originalObjectRef().isNonnull()};
+  const bool valid{cand.isNonnull()};
   const reco::Vertex* pv = event ? getPV(event) : nullptr;
 
   edm::Handle<std::vector<pat::Jet>> jets;

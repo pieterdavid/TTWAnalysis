@@ -72,7 +72,7 @@ public:
       const ProducersManager* /**/, const AnalyzersManager* /**/, const CategoryManager* /**/) const override
   {
     const double rho = event ? getRho(event) : 0.;
-    const bool valid{el.isNonnull() && el->originalObjectRef().isNonnull()};
+    const bool valid{el.isNonnull() && el->superCluster().isNonnull()};
     const double pt = valid ? el->pt() : -1.;
     const double eta = valid ? el->superCluster()->eta() : 0.;
 

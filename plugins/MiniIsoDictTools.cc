@@ -88,7 +88,10 @@ TTWAnalysis::Dict TTWAnalysis::DictElectronMiniIsolation::evaluate(edm::Ptr<pat:
   using heppy::IsolationComputer;
   m_isoComp.updateEvent(event);
 
-  const bool valid{cand.isNonnull() && cand->originalObjectRef().isNonnull()};
+  const bool valid{cand.isNonnull() && cand->superCluster().isNonnull()};
+  if ( ! valid ) {
+    LogDebug("ttW-eleSync") << "Null electron: candidate is " << ( cand.isNonnull() ? "not " : "" ) << "null; supercluster ref is " << ( cand.isNonnull() ? ( cand->superCluster().isNonnull() ? "also not " : "" ) : "NA " ) << "null";
+  }
   const double rho = event ? getRho(event) : 0.;
   const double eta = valid ? cand->superCluster()->eta() : 0.;
 

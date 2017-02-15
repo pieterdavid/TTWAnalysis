@@ -233,7 +233,7 @@ def addTTWCandidatesAnalyzer(framework, name="fillLists", prefix=""):
                                 Jets=cms.InputTag("slimmedJets"),
                                 ## for mini-isolation
                                 packedCandidates=cms.InputTag("packedPFCandidates"),
-                                ea=cms.FileInPath("RecoEgamma/ElectronIdentification/data/Spring15/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_25ns.txt"), ## TODO check ttH sync
+                                ea=cms.FileInPath("RecoEgamma/ElectronIdentification/data/Spring15/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_25ns.txt"), ## ttH sync
                                 rho=cms.untracked.InputTag("fixedGridRhoFastjetCentralNeutral"),
                                 ## BDT weights
                                 WeightsFile=cms.FileInPath("cp3_llbb/TTWAnalysis/data/el_BDTG.weights.xml"), ## TODO check for 2016
@@ -271,7 +271,7 @@ def addTTWCandidatesAnalyzer(framework, name="fillLists", prefix=""):
                                 Jets=cms.InputTag("slimmedJets"),
                                 ## for mini-isolation
                                 packedCandidates=cms.InputTag("packedPFCandidates"),
-                                ea=cms.FileInPath("cp3_llbb/TTWAnalysis/data/effAreaMuons_cone03_pfNeuHadronsAndPhotons_Spring15_25ns.txt"), ## TODO check synchronization
+                                ea=cms.FileInPath("cp3_llbb/TTWAnalysis/data/effAreaMuons_cone03_pfNeuHadronsAndPhotons_Spring15_25ns.txt"), ## ttH sync
                                 rho=cms.untracked.InputTag("fixedGridRhoFastjetCentralNeutral"),
                                 ## BDT weights
                                 WeightsFile=cms.FileInPath("cp3_llbb/TTWAnalysis/data/mu_BDTG.weights.xml"), ## TODO check for 2016
@@ -363,7 +363,7 @@ def customizeProducers(framework):
             DictTools=cms.PSet(
                 PVVars=cms.PSet(type=cms.string("ttw_electronPVVars"),parameters=cms.PSet()),
                 MiniIso=cms.PSet(type=cms.string("ttw_electronMiniIso"), parameters=cms.PSet(
-                    ea=cms.untracked.FileInPath("RecoEgamma/ElectronIdentification/data/Summer16/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_80X.txt"), ## TODO check ttH sync
+                    ea=cms.untracked.FileInPath("RecoEgamma/ElectronIdentification/data/Spring15/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_25ns.txt"), ## for ttH sync
                     rho=cms.untracked.InputTag("fixedGridRhoFastjetCentralNeutral"),
                     packedCandidates=cms.InputTag("packedPFCandidates"),
                     )),
@@ -378,7 +378,7 @@ def customizeProducers(framework):
             DictTools=cms.PSet(
                 PVVars=cms.PSet(type=cms.string("ttw_muonPVVars"),parameters=cms.PSet()),
                 MiniIso=cms.PSet(type=cms.string("ttw_muonMiniIso"), parameters=cms.PSet(
-                    ea=cms.untracked.FileInPath("cp3_llbb/TTWAnalysis/data/effAreaMuons_cone03_pfNeuHadronsAndPhotons_Spring15_25ns.txt"), ## TODO check for 2016
+                    ea=cms.untracked.FileInPath("cp3_llbb/TTWAnalysis/data/effAreaMuons_cone03_pfNeuHadronsAndPhotons_Spring15_25ns.txt"), ## for ttH sync
                     rho=cms.untracked.InputTag("fixedGridRhoFastjetCentralNeutral"),
                     packedCandidates=cms.InputTag("packedPFCandidates"),
                     )),
