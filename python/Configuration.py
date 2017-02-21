@@ -60,6 +60,7 @@ el_ID_WPs  = odict(Loose=" && ".join("( {0} )".format(cut) for cut in [
     , 'abs(userFloat("dz"))  < .1'
     , 'abs(userFloat("dca")) < 8.'
     , '( (userFloat("{0}")>-.92)&&((abs(eta)>1.479)||((userFloat("{0}")>-.83)&&((abs(eta)>.8)||(userFloat("{0}")>-.7)))) )'.format(el_ID_MVASpring15_name)
+    , 'gsfTrack().hitPattern().numberOfHits("MISSING_INNER_HITS") <= 1'
     ]))
 # POG cut-based ID
 mu_ID_WPs_POG = odict(Loose ="isLooseMuon", ## TODO check for 2016
