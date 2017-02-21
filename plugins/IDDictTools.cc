@@ -32,6 +32,7 @@ public:
     Dict ret;
     ret.add("isEB", valid ? el->isEB() : false);
     ret.add("isEE", valid ? el->isEE() : false);
+    ret.add("clusterEta", eta);
 
     // electron trigger emulation
     //     https://github.com/peruzzim/cmgtools-lite/blob/76X_for2016basis/TTHAnalysis/python/tools/functionsTTH.py#L10-L20
