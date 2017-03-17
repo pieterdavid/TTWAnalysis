@@ -18,11 +18,10 @@ class TTWCmdLine(CmdLine):
 
 options = TTWCmdLine()
 
-if options.localTest:
-    if options.runOnData:
-        options.changeDefaults(globalTag="80X_dataRun2_2016SeptRepro_v7", process="RECO")
-    else:
-        options.changeDefaults(globalTag="80X_mcRun2_asymptotic_2016_TrancheIV_v8", process="PAT")
+if options.runOnData:
+    options.changeDefaults(globalTag="80X_dataRun2_2016SeptRepro_v7", process="RECO")
+else:
+    options.changeDefaults(globalTag="80X_mcRun2_asymptotic_2016_TrancheIV_v8", process="PAT")
 
 import FWCore.ParameterSet.Config as cms
 
