@@ -50,4 +50,4 @@ This hopefully makes it easy to keep most of the inputs and settings closely tog
 From the `CMSSW_8_0_X` version onwards, scale factors are not stored in the trees.
 The rationale behind this is that they are one of the things that can change frequently (and at any point in the analysis), and they can simply be looked up from a `json` file based on quantities that are stored.
 This also saves space in the trees.
-See [`scalefactors.py`](https://gitlab.cern.ch/piedavid/ttWTools/tree/dev/python/scalefactors.py) and [`ScaleFactors.h`](https://gitlab.cern.ch/piedavid/ttWTools/tree/dev/common/include/ScaleFactors.py) in [ttWtools](https://gitlab.cern.ch/piedavid/ttWTools) for more information on how this is dealt with later on.
+See [`scalefactors.py`](https://gitlab.cern.ch/piedavid/ttWTools/tree/dev/python/scalefactors.py) and [`ScaleFactors.h`](https://gitlab.cern.ch/piedavid/ttWTools/tree/dev/common/include/ScaleFactors.h) in [ttWtools](https://gitlab.cern.ch/piedavid/ttWTools) for more information on how this is dealt with later on.
