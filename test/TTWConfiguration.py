@@ -1,8 +1,8 @@
 from cp3_llbb.Framework.CmdLine import CmdLine
 
 class TTWCmdLine(CmdLine):
-    def __init__(self):
-        super(TTWCmdLine, self).__init__()
+    def __init__(self, override=None, defaults=None):
+        super(TTWCmdLine, self).__init__(override=override, defaults=defaults)
     def registerOptions(self):
         super(TTWCmdLine, self).registerOptions()
 
