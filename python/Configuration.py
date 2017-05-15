@@ -10,7 +10,7 @@ import FWCore.ParameterSet.Config as cms
 
 dileptonTriggers = {
       "ElEl" : ["HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v.*"]
-    , "ElMu" : ["HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v*", "HLT_Mu(8|12)_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v.*"]
+    , "ElMu" : ["HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v.*", "HLT_Mu(8|12)_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v.*"]
     , "MuMu" : ["HLT_Mu17_TrkIsoVVL_(Tk)?Mu8_TrkIsoVVL_DZ_v.*"]
     }
 dileptonTriggers["MuEl"] = dileptonTriggers["ElMu"]
