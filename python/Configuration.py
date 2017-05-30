@@ -228,7 +228,7 @@ def addTTWCandidatesAnalyzer(framework, name="fillLists", prefix=""):
                                         for strat in ("weights", "raw", "rhoArea", "deltaBeta"))
                                     )))
                                 )),
-                            MVAttH=cms.PSet(type=cms.string("ttw_electronMVAttH"), parameters=cms.PSet(
+                            MVAttH76=cms.PSet(type=cms.string("ttw_electronMVAttH"), parameters=cms.PSet(
                                 ## for matching jet
                                 JetLeptonDR=cms.double(.4),
                                 Jets=cms.InputTag("slimmedJets"),
@@ -237,7 +237,18 @@ def addTTWCandidatesAnalyzer(framework, name="fillLists", prefix=""):
                                 ea=cms.FileInPath("RecoEgamma/ElectronIdentification/data/Spring15/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_25ns.txt"), ## ttH sync
                                 rho=cms.untracked.InputTag("fixedGridRhoFastjetCentralNeutral"),
                                 ## BDT weights
-                                WeightsFile=cms.FileInPath("cp3_llbb/TTWAnalysis/data/el_BDTG.weights.xml"), ## TODO check for 2016
+                                WeightsFile=cms.FileInPath("cp3_llbb/TTWAnalysis/data/el_BDTG.weights_76.xml"),
+                                )),
+                            MVAttH80=cms.PSet(type=cms.string("ttw_electronMVAttH"), parameters=cms.PSet(
+                                ## for matching jet
+                                JetLeptonDR=cms.double(.4),
+                                Jets=cms.InputTag("slimmedJets"),
+                                ## for mini-isolation
+                                packedCandidates=cms.InputTag("packedPFCandidates"),
+                                ea=cms.FileInPath("RecoEgamma/ElectronIdentification/data/Spring15/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_25ns.txt"), ## ttH sync
+                                rho=cms.untracked.InputTag("fixedGridRhoFastjetCentralNeutral"),
+                                ## BDT weights
+                                WeightsFile=cms.FileInPath("cp3_llbb/TTWAnalysis/data/el_BDTG.weights_80.xml"),
                                 )),
                             )
                         )),
@@ -266,7 +277,7 @@ def addTTWCandidatesAnalyzer(framework, name="fillLists", prefix=""):
                                         for strat in ("weights", "raw", "rhoArea", "deltaBeta"))
                                     )))
                                 )),
-                            MVAttH=cms.PSet(type=cms.string("ttw_muonMVAttH"), parameters=cms.PSet(
+                            MVAttH76=cms.PSet(type=cms.string("ttw_muonMVAttH"), parameters=cms.PSet(
                                 ## for matching jet
                                 JetLeptonDR=cms.double(.4),
                                 Jets=cms.InputTag("slimmedJets"),
@@ -275,7 +286,18 @@ def addTTWCandidatesAnalyzer(framework, name="fillLists", prefix=""):
                                 ea=cms.FileInPath("cp3_llbb/TTWAnalysis/data/effAreaMuons_cone03_pfNeuHadronsAndPhotons_Spring15_25ns.txt"), ## ttH sync
                                 rho=cms.untracked.InputTag("fixedGridRhoFastjetCentralNeutral"),
                                 ## BDT weights
-                                WeightsFile=cms.FileInPath("cp3_llbb/TTWAnalysis/data/mu_BDTG.weights.xml"), ## TODO check for 2016
+                                WeightsFile=cms.FileInPath("cp3_llbb/TTWAnalysis/data/mu_BDTG.weights_76.xml"),
+                                )),
+                            MVAttH80=cms.PSet(type=cms.string("ttw_muonMVAttH"), parameters=cms.PSet(
+                                ## for matching jet
+                                JetLeptonDR=cms.double(.4),
+                                Jets=cms.InputTag("slimmedJets"),
+                                ## for mini-isolation
+                                packedCandidates=cms.InputTag("packedPFCandidates"),
+                                ea=cms.FileInPath("cp3_llbb/TTWAnalysis/data/effAreaMuons_cone03_pfNeuHadronsAndPhotons_Spring15_25ns.txt"), ## ttH sync
+                                rho=cms.untracked.InputTag("fixedGridRhoFastjetCentralNeutral"),
+                                ## BDT weights
+                                WeightsFile=cms.FileInPath("cp3_llbb/TTWAnalysis/data/mu_BDTG.weights_80.xml"),
                                 )),
                             )
                         )),
