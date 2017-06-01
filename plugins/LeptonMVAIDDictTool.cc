@@ -24,9 +24,9 @@ namespace TTWAnalysis {
  * - https://twiki.cern.ch/twiki/bin/viewauth/CMS/LeptonMVA
  * - https://twiki.cern.ch/twiki/bin/viewauth/CMS/TTH-Multileptons
  */
-class DictTTHElectronMVA : public DictTool<pat::Electron>, protected DictPVHelper {
+class DictTTHElectronMVA76 : public DictTool<pat::Electron>, protected DictPVHelper {
 public:
-  DictTTHElectronMVA(const edm::ParameterSet& config)
+  DictTTHElectronMVA76(const edm::ParameterSet& config)
     : DictTool<pat::Electron>{config}
     , DictPVHelper{config}
     , m_vars{
@@ -44,14 +44,16 @@ public:
       , {"LepGood_mvaIdSpring15"        , -1.}
     }
     , m_maxDR{config.getParameter<double>("JetLeptonDR")}
+    , m_returnAllVars{config.getUntrackedParameter<bool>("AddAllVariablesToTree", false)}
   {
     for ( auto& entry : m_vars ) {
       m_tmvaReader.AddVariable(entry.first, &(entry.second));
     }
+    edm::LogInfo("TTHLeptonMVA") << "Initialising TMVA reader for TTH electron MVA (76 version)";
     m_tmvaReader.BookMVA("ttH-el-BDTG", config.getParameter<edm::FileInPath>("WeightsFile").fullPath());
   }
 
-  virtual ~DictTTHElectronMVA() {}
+  virtual ~DictTTHElectronMVA76() {}
 
   virtual void doConsumes(const edm::ParameterSet& config, edm::ConsumesCollector&& collector) override
   {
@@ -69,6 +71,57 @@ private:
   mutable TMVA::Reader m_tmvaReader;
   edm::EDGetTokenT<std::vector<pat::Jet>> m_jetsToken;
   double m_maxDR;
+  bool m_returnAllVars;
+};
+
+class DictTTHElectronMVA80 : public DictTool<pat::Electron>, protected DictPVHelper {
+public:
+  DictTTHElectronMVA80(const edm::ParameterSet& config)
+    : DictTool<pat::Electron>{config}
+    , DictPVHelper{config}
+    , m_vars{
+        {"LepGood_pt"                   , -1.}
+      , {"LepGood_eta"                  , -1.}
+      , {"LepGood_jetNDauChargedMVASel" , -1.}
+      , {"LepGood_miniRelIsoCharged"    , -1.}
+      , {"LepGood_miniRelIsoNeutral"    , -1.}
+      , {"LepGood_jetPtRelv2"           , -1.}
+      , {"min(LepGood_jetPtRatiov2,1.5)", -1.}
+      , {"max(LepGood_jetBTagCSV,0)"    , -1.}
+      , {"LepGood_sip3d"                , -1.}
+      , {"log(abs(LepGood_dxy))"        , -1.}
+      , {"log(abs(LepGood_dz))"         , -1.}
+      , {"LepGood_mvaIdSpring16HZZ"     , -1.}
+    }
+    , m_maxDR{config.getParameter<double>("JetLeptonDR")}
+    , m_returnAllVars{config.getUntrackedParameter<bool>("AddAllVariablesToTree", false)}
+  {
+    for ( auto& entry : m_vars ) {
+      m_tmvaReader.AddVariable(entry.first, &(entry.second));
+    }
+    edm::LogInfo("TTHLeptonMVA") << "Initialising TMVA reader for TTH electron MVA (80 version)";
+    m_tmvaReader.BookMVA("ttH-el-BDTG", config.getParameter<edm::FileInPath>("WeightsFile").fullPath());
+  }
+
+  virtual ~DictTTHElectronMVA80() {}
+
+  virtual void doConsumes(const edm::ParameterSet& config, edm::ConsumesCollector&& collector) override
+  {
+    DictPVHelper::doConsumes(config, std::forward<edm::ConsumesCollector>(collector));
+    m_jetsToken = collector.consumes<std::vector<pat::Jet>>(config.getParameter<edm::InputTag>("Jets"));
+  }
+
+  virtual Dict evaluate(edm::Ptr<pat::Electron> cand,
+      const edm::Event* event, const edm::EventSetup* /**/,
+      const ProducersManager* /**/, const AnalyzersManager* /**/, const CategoryManager* /**/) const override;
+
+private:
+  mutable std::vector<std::pair<std::string,float>> m_vars;
+  float& getVar(const std::string& name) const { auto it = std::find_if(std::begin(m_vars), std::end(m_vars), [&name] ( const std::pair<std::string,float>& item ) { return name == item.first; }); return it->second; }
+  mutable TMVA::Reader m_tmvaReader;
+  edm::EDGetTokenT<std::vector<pat::Jet>> m_jetsToken;
+  double m_maxDR;
+  bool m_returnAllVars;
 };
 
 class DictTTHMuonMVA : public DictTool<pat::Muon>, protected DictPVHelper {
@@ -91,10 +144,13 @@ public:
       , {"LepGood_segmentCompatibility" , -1.}
     }
     , m_maxDR{config.getParameter<double>("JetLeptonDR")}
+    , m_returnAllVars{config.getUntrackedParameter<bool>("AddAllVariablesToTree", false)}
+    , m_uniq{config.getParameter<std::string>("UniqueName")}
   {
     for ( auto& entry : m_vars ) {
       m_tmvaReader.AddVariable(entry.first, &(entry.second));
     }
+    edm::LogInfo("TTHLeptonMVA") << "Initialising TMVA reader for TTH muon MVA";
     m_tmvaReader.BookMVA("ttH-mu-BDTG", config.getParameter<edm::FileInPath>("WeightsFile").fullPath());
   }
 
@@ -116,6 +172,8 @@ private:
   mutable TMVA::Reader m_tmvaReader;
   edm::EDGetTokenT<std::vector<pat::Jet>> m_jetsToken;
   double m_maxDR;
+  bool m_returnAllVars;
+  std::string m_uniq;
 };
 }
 
@@ -154,23 +212,23 @@ namespace {
   reco::Candidate::LorentzVector jetLepAwareJEC(const pat::Jet* jet, const reco::Candidate::LorentzVector& lepton, bool print=false)
   {
     if ( ( ! jet ) || ( (jet->p4()*jet->jecFactor("Uncorrected")-lepton).Rho() < 1.e-4 ) ) {
-      if ( print ) { std::cout << "No matching jet with significantly different momentum -> returning lepton" << std::endl; }
+      if ( print ) { LogDebug("TTHLeptonMVA") << "No matching jet with significantly different momentum -> returning lepton"; }
       return lepton;
     } else {
       const float rawCorr{jet->jecFactor("Uncorrected")};
       const float l1Corr{jet->jecFactor("L1FastJet")};
       if ( print ) {
-        std::cout << "Raw correction: " << rawCorr << "; L1 correction: " << l1Corr << std::endl;
-        std::cout << "Available JEC set: ";
+        LogDebug("TTHLeptonMVA") << "Raw correction: " << rawCorr << "; L1 correction: " << l1Corr;
+        LogTrace("TTHLeptonMVA") << "Available JEC set: ";
         for ( const auto& jecSetName : jet->availableJECSets() ) {
-          std::cout << jecSetName << ", ";
+          LogTrace("TTHLeptonMVA") << jecSetName << ", ";
         }
-        std::cout << std::endl;
-        std::cout << "Available JEC levels: ";
+        LogTrace("TTHLeptonMVA") << std::endl;
+        LogTrace("TTHLeptonMVA") << "Available JEC levels: ";
         for ( const auto& jecLevelName : jet->availableJECLevels() ) {
-          std::cout << jecLevelName << " (" << jet->jecFactor(jecLevelName) << "), ";
+          LogTrace("TTHLeptonMVA") << jecLevelName << " (" << jet->jecFactor(jecLevelName) << "), ";
         }
-        std::cout << std::endl;
+        LogTrace("TTHLeptonMVA") << std::endl;
       }
       return (jet->p4()-lepton*(1./l1Corr))+lepton;
     }
@@ -206,13 +264,18 @@ namespace {
         });
   }
 
-  void printMomentum( const reco::Candidate::LorentzVector& mom, std::ostream& out )
+#ifdef EDM_ML_LOGDEBUG
+  // only used for debug printout below
+  std::string printMomentum( const reco::Candidate::LorentzVector& mom )
   {
+    std::stringstream out;
     out << "(PT=" << mom.Pt() << ",ETA=" << mom.Eta() << ",PHI=" << mom.Phi() << ",E=" << mom.E() << ")";
+    return out.str();
   }
+#endif
 }
 
-TTWAnalysis::Dict TTWAnalysis::DictTTHElectronMVA::evaluate(edm::Ptr<pat::Electron> cand,
+TTWAnalysis::Dict TTWAnalysis::DictTTHElectronMVA76::evaluate(edm::Ptr<pat::Electron> cand,
     const edm::Event* event, const edm::EventSetup* /**/,
     const ProducersManager* /**/, const AnalyzersManager* /**/, const CategoryManager* /**/) const
 {
@@ -228,14 +291,14 @@ TTWAnalysis::Dict TTWAnalysis::DictTTHElectronMVA::evaluate(edm::Ptr<pat::Electr
   }
   int jetNDauChargedMVASel = ( valid && jet && pv ) ? numberOfChargedDaughtersMVASel(jet, cand.get(), pv) : 0;
 
-  if ( false ) {
-    std::cout << "\n\nElectron prompt-lepton MVA for electron with momentum "; printMomentum(valid ? cand->p4() : reco::Candidate::LorentzVector{}, std::cout); std::cout << std::endl;
-    std::cout << "Best matching jet: "; if ( jet ) { printMomentum(jet->p4(), std::cout); } else { std::cout << "none"; }; std::cout << std::endl;
-    if ( valid && jet ) {
-      reco::Candidate::LorentzVector m{jetLepAwareJEC(jet, cand->p4(), true)};
-      std::cout << "After lepton-aware JEC: "; printMomentum(m, std::cout); std::cout << std::endl;
-    }
+#ifdef EDM_ML_LOGDEBUG
+  LogDebug("TTHLeptonMVA") << "\n\nElectron prompt-lepton MVA for electron with momentum " << printMomentum(valid ? cand->p4() : reco::Candidate::LorentzVector{});
+  LogDebug("TTHLeptonMVA") << "Best matching jet: " << ( jet ? printMomentum(jet->p4()) : "none" );
+  if ( valid && jet ) {
+    reco::Candidate::LorentzVector m{jetLepAwareJEC(jet, cand->p4(), true)};
+    LogDebug("TTHLeptonMVA") << "After lepton-aware JEC: " << printMomentum(m);
   }
+#endif
 
   getVar("LepGood_pt"                   ) = valid ? cand->pt() : -1.;
   getVar("LepGood_eta"                  ) = eta;
@@ -251,16 +314,71 @@ TTWAnalysis::Dict TTWAnalysis::DictTTHElectronMVA::evaluate(edm::Ptr<pat::Electr
   getVar("LepGood_mvaIdSpring15"        ) = valid ? cand->userFloat("ElectronMVAEstimatorRun2Spring15NonTrig25nsV1Values") : -1.;
 
   TTWAnalysis::Dict ret{};
-  ret.add("LeptonMVA"     , valid ? m_tmvaReader.EvaluateMVA("ttH-el-BDTG") : -1.);
-  // some more variables that are only calculated here
-  ret.add("jetPtRelv2"    , getVar("LepGood_jetPtRelv2"));
-  ret.add("jetPtRatio"    , getVar("min(LepGood_jetPtRatiov2,1.5)"));
-  ret.add("jetNDaugMVASel", getVar("LepGood_jetNDauChargedMVASel"));
-  ret.add("jetBTagCSV"    , getVar("max(LepGood_jetBTagCSV,0)"));
+  ret.add("LeptonMVA76"   , valid ? m_tmvaReader.EvaluateMVA("ttH-el-BDTG") : -1.);
   ret.add("MVAIdNonTrig25nsSpring15", getVar("LepGood_mvaIdSpring15"));
-  //
-  ret.add("miniRelIsoCharged", getVar("LepGood_miniRelIsoCharged"));
-  ret.add("miniRelIsoNeutral", getVar("LepGood_miniRelIsoNeutral"));
+  if ( m_returnAllVars ) { // some more variables that are only calculated here
+    ret.add("jetPtRelv2"    , getVar("LepGood_jetPtRelv2"));
+    ret.add("jetPtRatio"    , getVar("min(LepGood_jetPtRatiov2,1.5)"));
+    ret.add("jetNDaugMVASel", getVar("LepGood_jetNDauChargedMVASel"));
+    ret.add("jetBTagCSV"    , getVar("max(LepGood_jetBTagCSV,0)"));
+    //
+    ret.add("miniRelIsoCharged", getVar("LepGood_miniRelIsoCharged"));
+    ret.add("miniRelIsoNeutral", getVar("LepGood_miniRelIsoNeutral"));
+  }
+
+  return ret;
+}
+
+TTWAnalysis::Dict TTWAnalysis::DictTTHElectronMVA80::evaluate(edm::Ptr<pat::Electron> cand,
+    const edm::Event* event, const edm::EventSetup* /**/,
+    const ProducersManager* /**/, const AnalyzersManager* /**/, const CategoryManager* /**/) const
+{
+  const bool valid{cand.isNonnull() && cand->superCluster().isNonnull()};
+  const double eta = valid ? cand->superCluster()->eta() : 0.;
+  const reco::Vertex* pv = event ? getPV(event) : nullptr;
+
+  edm::Handle<std::vector<pat::Jet>> jets;
+  const pat::Jet* jet{nullptr};
+  if ( event && valid ) {
+    event->getByToken(m_jetsToken, jets);
+    jet = findMatchingJet( cand, *jets, m_maxDR );
+  }
+  int jetNDauChargedMVASel = ( valid && jet && pv ) ? numberOfChargedDaughtersMVASel(jet, cand.get(), pv) : 0;
+
+#ifdef EDM_ML_LOGDEBUG
+  LogDebug("TTHLeptonMVA") << "\n\nElectron prompt-lepton MVA for electron with momentum " << printMomentum(valid ? cand->p4() : reco::Candidate::LorentzVector{});
+  LogDebug("TTHLeptonMVA") << "Best matching jet: " << ( jet ? printMomentum(jet->p4()) : "none" );
+  if ( valid && jet ) {
+    reco::Candidate::LorentzVector m{jetLepAwareJEC(jet, cand->p4(), true)};
+    LogDebug("TTHLeptonMVA") << "After lepton-aware JEC: " << printMomentum(m);
+  }
+#endif
+
+  getVar("LepGood_pt"                   ) = valid ? cand->pt() : -1.;
+  getVar("LepGood_eta"                  ) = eta;
+  getVar("LepGood_jetNDauChargedMVASel" ) = jetNDauChargedMVASel;
+  getVar("LepGood_miniRelIsoCharged"    ) = valid ? cand->userFloat("miniIso_AbsCharged")/cand->pt() : -1.;
+  getVar("LepGood_miniRelIsoNeutral"    ) = valid ? cand->userFloat("miniIso_AbsNeutral_rhoArea")/cand->pt() : -1.;
+  getVar("LepGood_jetPtRelv2"           ) = valid ? ptRelv2(jet, cand->p4()) : -1.;
+  getVar("min(LepGood_jetPtRatiov2,1.5)") = valid ? std::min(cand->pt()/jetLepAwareJEC(jet, cand->p4()).Pt(), 1.5) : -1.;
+  getVar("max(LepGood_jetBTagCSV,0)"    ) = std::max(jet ? jet->bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags") : -99., 0.);
+  getVar("LepGood_sip3d"                ) = valid ? std::abs(cand->userFloat("dca")) : -1;
+  getVar("log(abs(LepGood_dxy))"        ) = valid ? std::log(std::abs(cand->userFloat("dxy"))) : 0.;
+  getVar("log(abs(LepGood_dz))"         ) = valid ? std::log(std::abs(cand->userFloat("dz" ))) : 0.;
+  getVar("LepGood_mvaIdSpring16HZZ"     ) = valid ? cand->userFloat("HZZSpring16MVAID_value") : -1.; // cand->userFloat("ElectronMVAEstimatorRun2Spring16HZZV1Values")
+
+  TTWAnalysis::Dict ret{};
+  ret.add("LeptonMVA80"     , valid ? m_tmvaReader.EvaluateMVA("ttH-el-BDTG") : -1.);
+  ret.add("MVAIdSpring16HZZ", getVar("LepGood_mvaIdSpring16HZZ"));
+  if ( m_returnAllVars ) { // some more variables that are only calculated here
+    ret.add("jetPtRelv2"    , getVar("LepGood_jetPtRelv2"));
+    ret.add("jetPtRatio"    , getVar("min(LepGood_jetPtRatiov2,1.5)"));
+    ret.add("jetNDaugMVASel", getVar("LepGood_jetNDauChargedMVASel"));
+    ret.add("jetBTagCSV"    , getVar("max(LepGood_jetBTagCSV,0)"));
+    //
+    ret.add("miniRelIsoCharged", getVar("LepGood_miniRelIsoCharged"));
+    ret.add("miniRelIsoNeutral", getVar("LepGood_miniRelIsoNeutral"));
+  }
 
   return ret;
 }
@@ -280,14 +398,14 @@ TTWAnalysis::Dict TTWAnalysis::DictTTHMuonMVA::evaluate(edm::Ptr<pat::Muon> cand
   }
   int jetNDauChargedMVASel = ( valid && jet && pv ) ? numberOfChargedDaughtersMVASel(jet, cand.get(), pv) : 0;
 
-  if ( false ) {
-    std::cout << "\n\nMuon prompt-lepton MVA for muon with momentum "; printMomentum(valid ? cand->p4() : reco::Candidate::LorentzVector{}, std::cout); std::cout << std::endl;
-    std::cout << "Best matching jet: "; if ( jet ) { printMomentum(jet->p4(), std::cout); } else { std::cout << "none"; }; std::cout << std::endl;
-    if ( valid && jet ) {
-      reco::Candidate::LorentzVector m{jetLepAwareJEC(jet, cand->p4(), true)};
-      std::cout << "After lepton-aware JEC: "; printMomentum(m, std::cout); std::cout << std::endl;
-    }
+#ifdef EDM_ML_LOGDEBUG
+  LogDebug("TTHLeptonMVA") << "\n\nMuon prompt-lepton MVA for muon with momentum " << printMomentum(valid ? cand->p4() : reco::Candidate::LorentzVector{});
+  LogDebug("TTHLeptonMVA") << "Best matching jet: " << ( jet ? printMomentum(jet->p4()) : "none" );
+  if ( valid && jet ) {
+    reco::Candidate::LorentzVector m{jetLepAwareJEC(jet, cand->p4(), true)};
+    LogDebug("TTHLeptonMVA") << "After lepton-aware JEC: " << printMomentum(m);
   }
+#endif
 
   getVar("LepGood_pt"                   ) = valid ? cand->pt() : -1.;
   getVar("LepGood_eta"                  ) = valid ? cand->eta() : -100.;
@@ -303,20 +421,22 @@ TTWAnalysis::Dict TTWAnalysis::DictTTHMuonMVA::evaluate(edm::Ptr<pat::Muon> cand
   getVar("LepGood_segmentCompatibility" ) = valid ? cand->segmentCompatibility() : false;
 
   TTWAnalysis::Dict ret{};
-  ret.add("LeptonMVA"     , valid ? m_tmvaReader.EvaluateMVA("ttH-mu-BDTG") : -1.);
+  ret.add("LeptonMVA"+m_uniq, valid ? m_tmvaReader.EvaluateMVA("ttH-mu-BDTG") : -1.);
   // some more variables that are only calculated here
-  ret.add("jetPtRelv2"    , getVar("LepGood_jetPtRelv2"));
-  ret.add("jetPtRatio"    , getVar("min(LepGood_jetPtRatiov2,1.5)"));
-  ret.add("jetNDaugMVASel", getVar("LepGood_jetNDauChargedMVASel"));
-  ret.add("jetBTagCSV"    , getVar("max(LepGood_jetBTagCSV,0)"));
-  //
-  ret.add("miniRelIsoCharged", getVar("LepGood_miniRelIsoCharged"));
-  ret.add("miniRelIsoNeutral", getVar("LepGood_miniRelIsoNeutral"));
-  ret.add("segmentCompatibility", getVar("LepGood_segmentCompatibility" ));
-
+  if ( m_returnAllVars ) { // some more variables that are only calculated here
+    ret.add("jetPtRelv2"    , getVar("LepGood_jetPtRelv2"));
+    ret.add("jetPtRatio"    , getVar("min(LepGood_jetPtRatiov2,1.5)"));
+    ret.add("jetNDaugMVASel", getVar("LepGood_jetNDauChargedMVASel"));
+    ret.add("jetBTagCSV"    , getVar("max(LepGood_jetBTagCSV,0)"));
+    //
+    ret.add("miniRelIsoCharged", getVar("LepGood_miniRelIsoCharged"));
+    ret.add("miniRelIsoNeutral", getVar("LepGood_miniRelIsoNeutral"));
+    ret.add("segmentCompatibility", getVar("LepGood_segmentCompatibility" ));
+  }
 
   return ret;
 }
 
-DEFINE_EDM_PLUGIN(TTWAnalysis::DictTool<pat::Electron>::factory, TTWAnalysis::DictTTHElectronMVA, "ttw_electronMVAttH");
+DEFINE_EDM_PLUGIN(TTWAnalysis::DictTool<pat::Electron>::factory, TTWAnalysis::DictTTHElectronMVA76, "ttw_electronMVAttH76");
+DEFINE_EDM_PLUGIN(TTWAnalysis::DictTool<pat::Electron>::factory, TTWAnalysis::DictTTHElectronMVA80, "ttw_electronMVAttH80");
 DEFINE_EDM_PLUGIN(TTWAnalysis::DictTool<pat::Muon    >::factory, TTWAnalysis::DictTTHMuonMVA, "ttw_muonMVAttH");
