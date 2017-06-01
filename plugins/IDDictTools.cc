@@ -75,6 +75,7 @@ class DictElectronMVAID : public DictTool<pat::Electron> {
 public:
   DictElectronMVAID(const edm::ParameterSet& config)
     : DictTool<pat::Electron>(config)
+    , m_prefix(config.getParameter<std::string>("prefix"))
   {}
   virtual ~DictElectronMVAID() {}
 
@@ -94,18 +95,23 @@ public:
     edm::Handle<edm::ValueMap<int>> categories;
 
     Dict ret;
+    float v_val;
+    int v_cat;
     if ( event && ( ! m_values.isUninitialized() ) ) {
       event->getByToken(m_values, values);
       event->getByToken(m_categories, categories);
       if ( valid ) {
-        ret.add("MVAID_value", (*values)[el]);
-        ret.add("MVAID_category", (*categories)[el]);
+        v_val = (*values)[el];
+        v_cat = (*categories)[el];
       }
     }
+    ret.add(m_prefix+"value"   , v_val);
+    ret.add(m_prefix+"category", v_cat);
 
     return ret;
   }
 private:
+  std::string m_prefix;
   edm::EDGetTokenT<edm::ValueMap<float>> m_values;
   edm::EDGetTokenT<edm::ValueMap<int>> m_categories;
 };
@@ -170,5 +176,6 @@ private:
 }
 
 DEFINE_EDM_PLUGIN(TTWAnalysis::DictTool<pat::Electron>::factory, TTWAnalysis::DictElectronIDVars, "ttw_electronIDVars");
+DEFINE_EDM_PLUGIN(TTWAnalysis::DictTool<pat::Electron>::factory, TTWAnalysis::DictElectronMVAID , "ttw_electronMVAID");
 DEFINE_EDM_PLUGIN(TTWAnalysis::DictTool<pat::Muon    >::factory, TTWAnalysis::DictMuonIDVars    , "ttw_muonIDVars");
 DEFINE_EDM_PLUGIN(TTWAnalysis::DictTool<pat::Jet     >::factory, TTWAnalysis::DictJetIDVars     , "ttw_jetIDVars");
