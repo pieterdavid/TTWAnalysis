@@ -58,8 +58,17 @@ namespace TTWAnalysis {
             for ( std::size_t iT{0}; this->m_dicts.size() != iT; ++iT ) {
               auto dct = this->m_dicts[iT].first->evaluate(selCand, &event, &eventSetup);
               for ( const auto& elm : dct ) {
-                cand.addUserFloat(elm.first, boost::any_cast<double>(elm.second));
-                LogDebug("ttW") << m_name << " added user float " << elm.first << " : " << boost::any_cast<double>(elm.second);
+                const auto& etyp = elm.second.type();
+                if ( typeid(float)         == etyp ) {
+                  cand.addUserFloat(elm.first, boost::any_cast<float >(elm.second));
+                  LogDebug("ttW") << m_name << " added user float " << elm.first << " : " << boost::any_cast<float>(elm.second);
+                } else if ( typeid(double) == etyp ) {
+                  cand.addUserFloat(elm.first, boost::any_cast<double>(elm.second));
+                  LogDebug("ttW") << m_name << " added user float " << elm.first << " : " << boost::any_cast<double>(elm.second);
+                } else if ( typeid(int)    == etyp ) {
+                  cand.addUserInt  (elm.first, boost::any_cast<int   >(elm.second));
+                  LogDebug("ttW") << m_name << " added user int   " << elm.first << " : " << boost::any_cast<int>(elm.second);
+                }
               }
             }
           }
