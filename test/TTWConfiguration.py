@@ -66,9 +66,12 @@ process = framework.create()
 if options.localTest:
     if options.runOnData:
         process.source.fileNames = cms.untracked.vstring(
-            '/store/data/Run2015D/DoubleMuon/MINIAOD/16Dec2015-v1/10000/00039A2E-D7A7-E511-98EE-3417EBE64696.root'
+            #"/store/data/Run2016F/MuonEG/MINIAOD/03Feb2017-v1/50000/0EEAA135-F8EA-E611-9F10-0CC47A7C35A8.root"
+            #"/store/data/Run2016F/MuonEG/MINIAOD/03Feb2017-v1/50000/149ED47A-0CEB-E611-871F-0CC47A78A2F6.root"
+            #"/store/data/Run2016F/MuonEG/MINIAOD/03Feb2017-v1/50000/0EEAA135-F8EA-E611-9F10-0CC47A7C35A8.root"
+            "/store/data/Run2016D/MuonEG/MINIAOD/03Feb2017-v1/80000/0A40F550-05EB-E611-B3DE-0CC47A4DEF68.root"
             )
-        process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1000))
+        process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(25000))
 
     else: ## MC
 
