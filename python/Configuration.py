@@ -168,6 +168,9 @@ def addTTWAnalyzer(framework, name="ttW", prefix="ttW_", applyFilter=True):
                 , CutMedium=cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Summer16-80X-V1-medium")
                 , CutTight =cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Summer16-80X-V1-tight")
                 , CutHLTPre=cms.InputTag("egmGsfElectronIDs:cutBasedElectronHLTPreselection-Summer16-V1")
+                , CutMVAMedium  =cms.InputTag("egmGsfElectronIDs:mvaEleID-Spring16-GeneralPurpose-V1-wp90")
+                , CutMVATight   =cms.InputTag("egmGsfElectronIDs:mvaEleID-Spring16-GeneralPurpose-V1-wp80")
+                , CutHZZMVALoose=cms.InputTag("egmGsfElectronIDs:mvaEleID-Spring16-HZZ-V1-wpLoose")
                 ),
 
             ### new-style parameters
@@ -219,6 +222,10 @@ def addTTWCandidatesAnalyzer(framework, name="fillLists", prefix=""):
                                     (("POGID{0}".format(wpNm), cms.string(wpSel)) for wpNm, wpSel in el_ID_WPs_POG.iteritems())
                                 ))))),
                             IDVars=cms.PSet(type=cms.string("ttw_electronIDVars"),parameters=cms.PSet()),
+                            MVAIDGen=cms.PSet(type=cms.string("ttw_electronMVAID"), parameters=cms.PSet(prefix=cms.string("GPMVAID_"),
+                                values=cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Spring16GeneralPurposeV1Values"),
+                                categories=cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Spring16GeneralPurposeV1Categories")
+                                )),
                             PVVars=cms.PSet(type=cms.string("ttw_electronHybridFunctions"), parameters=cms.PSet(
                                 Functions=cms.PSet(**dict((nm, cms.string('userFloat("{0}")'.format(nm))) for nm in ("dxy", "dz", "dca"))))),
                             Iso=cms.PSet(type=cms.string("ttw_electronIso"), parameters=cms.PSet(
@@ -233,7 +240,7 @@ def addTTWCandidatesAnalyzer(framework, name="fillLists", prefix=""):
                                         for strat in ("weights", "raw", "rhoArea", "deltaBeta"))
                                     )))
                                 )),
-                            MVAttH76=cms.PSet(type=cms.string("ttw_electronMVAttH"), parameters=cms.PSet(
+                            MVAttH76=cms.PSet(type=cms.string("ttw_electronMVAttH76"), parameters=cms.PSet(
                                 ## for matching jet
                                 JetLeptonDR=cms.double(.4),
                                 Jets=cms.InputTag("slimmedJets"),
@@ -243,8 +250,9 @@ def addTTWCandidatesAnalyzer(framework, name="fillLists", prefix=""):
                                 rho=cms.untracked.InputTag("fixedGridRhoFastjetCentralNeutral"),
                                 ## BDT weights
                                 WeightsFile=cms.FileInPath("cp3_llbb/TTWAnalysis/data/el_BDTG.weights_76.xml"),
+                                AddAllVariablesToTree=cms.untracked.bool(True)
                                 )),
-                            MVAttH80=cms.PSet(type=cms.string("ttw_electronMVAttH"), parameters=cms.PSet(
+                            MVAttH80=cms.PSet(type=cms.string("ttw_electronMVAttH80"), parameters=cms.PSet(
                                 ## for matching jet
                                 JetLeptonDR=cms.double(.4),
                                 Jets=cms.InputTag("slimmedJets"),
@@ -292,6 +300,7 @@ def addTTWCandidatesAnalyzer(framework, name="fillLists", prefix=""):
                                 rho=cms.untracked.InputTag("fixedGridRhoFastjetCentralNeutral"),
                                 ## BDT weights
                                 WeightsFile=cms.FileInPath("cp3_llbb/TTWAnalysis/data/mu_BDTG.weights_76.xml"),
+                                AddAllVariablesToTree=cms.untracked.bool(True), UniqueName=cms.string("76")
                                 )),
                             MVAttH80=cms.PSet(type=cms.string("ttw_muonMVAttH"), parameters=cms.PSet(
                                 ## for matching jet
@@ -303,6 +312,7 @@ def addTTWCandidatesAnalyzer(framework, name="fillLists", prefix=""):
                                 rho=cms.untracked.InputTag("fixedGridRhoFastjetCentralNeutral"),
                                 ## BDT weights
                                 WeightsFile=cms.FileInPath("cp3_llbb/TTWAnalysis/data/mu_BDTG.weights_80.xml"),
+                                UniqueName=cms.string("80")
                                 )),
                             )
                         )),
@@ -394,6 +404,10 @@ def customizeProducers(framework):
                     ea=cms.untracked.FileInPath("RecoEgamma/ElectronIdentification/data/Spring15/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_25ns.txt"), ## for ttH sync
                     rho=cms.untracked.InputTag("fixedGridRhoFastjetCentralNeutral"),
                     packedCandidates=cms.InputTag("packedPFCandidates"),
+                    )),
+                MVAIDHZZ=cms.PSet(type=cms.string("ttw_electronMVAID"), parameters=cms.PSet(prefix=cms.string("HZZSpring16MVAID_"),
+                    values=cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Spring16HZZV1Values"),
+                    categories=cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Spring16HZZV1Categories")
                     )),
                 )
             )
