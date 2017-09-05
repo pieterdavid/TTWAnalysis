@@ -11,6 +11,7 @@
 
 #include "cp3_llbb/Framework/interface/Types.h"
 #include "cp3_llbb/TTWAnalysis/interface/DictTool.h"
+#include "cp3_llbb/TTWAnalysis/interface/stl_helpers.h"
 
 #include "Helpers.h"
 #include "Math/VectorUtil.h"
@@ -179,27 +180,11 @@ private:
 
 // implementation
 namespace {
-  template<typename _Arg,typename _UnaryFunction>
-  struct _LessOf {
-    public:
-      _LessOf(_UnaryFunction fun) : m_fun(fun) {}
-      bool operator() ( const _Arg& __a, const _Arg& __b ) const
-      {
-        return m_fun(__a) < m_fun(__b);
-      }
-    private:
-      _UnaryFunction m_fun;
-  };
-  // factory method
-  template<typename _Arg,typename _UnaryFunction>
-  _LessOf<_Arg,_UnaryFunction> LessOf( _UnaryFunction __fun )
-  { return _LessOf<_Arg,_UnaryFunction>(std::forward<_UnaryFunction>(__fun)); }
-
   const pat::Jet* findMatchingJet( edm::Ptr<reco::RecoCandidate> lepton, const std::vector<pat::Jet>& jets, double maxDR )
   {
     using namespace ROOT::Math;
     const auto it = std::min_element(std::begin(jets), std::end(jets),
-          LessOf<const pat::Jet&>( [lepton] ( const pat::Jet& j ) {
+          TTWAnalysis::LessOf<const pat::Jet&>( [lepton] ( const pat::Jet& j ) {
             return VectorUtil::DeltaR(j.p4(), lepton->p4());
           } ));
     if ( ( std::end(jets) != it ) && ( VectorUtil::DeltaR(lepton->p4(), it->p4()) < maxDR ) ) {

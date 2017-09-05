@@ -1,6 +1,7 @@
 //#include <cp3_llbb/TTWAnalysis/interface/Defines.h>
 #include "cp3_llbb/TTWAnalysis/interface/TTWAnalyzer.h"
 #include "cp3_llbb/TTWAnalysis/interface/TTWDileptonCategory.h"
+#include "cp3_llbb/TTWAnalysis/interface/stl_helpers.h"
 
 #include <cp3_llbb/Framework/interface/METProducer.h>
 #include <cp3_llbb/Framework/interface/HLTProducer.h>
@@ -29,39 +30,6 @@ namespace {
           return ( __iv > __ov ) ? __ov : __iv;
         });
   }
-
-  template<typename _Arg,typename _UnaryFunction>
-  struct _LessOf {
-    public:
-      _LessOf(_UnaryFunction fun) : m_fun(fun) {}
-      bool operator() ( const _Arg& __a, const _Arg& __b ) const
-      {
-        return m_fun(__a) < m_fun(__b);
-      }
-    private:
-      _UnaryFunction m_fun;
-  };
-  // factory method
-  template<typename _Arg,typename _UnaryFunction>
-  _LessOf<_Arg,_UnaryFunction> LessOf( _UnaryFunction __fun )
-  { return _LessOf<_Arg,_UnaryFunction>(std::forward<_UnaryFunction>(__fun)); }
-
-  template<typename _Arg,typename _UnaryFunction>
-  struct _MoreOf {
-    public:
-      _MoreOf(_UnaryFunction fun) : m_fun(fun) {}
-      bool operator() ( const _Arg& __a, const _Arg& __b ) const
-      {
-        return m_fun(__a) > m_fun(__b);
-      }
-    private:
-      _UnaryFunction m_fun;
-  };
-  // factory method
-  template<typename _Arg,typename _UnaryFunction>
-  _MoreOf<_Arg,_UnaryFunction> MoreOf( _UnaryFunction __fun )
-  { return _MoreOf<_Arg,_UnaryFunction>(std::forward<_UnaryFunction>(__fun)); }
-
 
   float minDRjl( const std::vector<Lepton>& leptons, const indexlist_t& lIdxs, const pat::Jet& j )
   {
