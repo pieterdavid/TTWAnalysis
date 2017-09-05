@@ -29,6 +29,7 @@ public:
     : DictTool<Candidate>(config)
     , m_hltDRCut( config.getUntrackedParameter<double>("hltDRCut", std::numeric_limits<float>::max()) )
     , m_hltDPtCut( config.getUntrackedParameter<double>("hltDPtCut", std::numeric_limits<float>::max()) )
+    //, m_hasPrinted(0)
   {
     if (config.exists("triggers")) {
       m_hlt_service.reset(new HLTService(config.getUntrackedParameter<edm::FileInPath>("triggers").fullPath()));
@@ -37,15 +38,20 @@ public:
       std::cout << std::endl;
     }
 
-    const auto& selsConfig = config.getParameter<edm::ParameterSet>("Selections");
+    const auto& selsConfig = config.getParameter<edm::ParameterSet>("Selections_PathRegex");
     for ( const auto& iName : selsConfig.getParameterNames() ) {
       const auto& sels = selsConfig.getParameter<std::vector<std::string>>(iName);
       std::vector<boost::regex> patterns; patterns.reserve(sels.size());
-      std::transform(std::begin(sels), std::end(sels), std::back_inserter(patterns), 
+      std::transform(std::begin(sels), std::end(sels), std::back_inserter(patterns),
           [] ( const std::string& ireg ) { return boost::regex(ireg, boost::regex_constants::icase); });
-      m_selections.emplace(iName, patterns);
+      m_selections_pathregex.emplace(iName, patterns);
     }
-
+    const auto& filtersConfig = config.getParameter<edm::ParameterSet>("Selections_Filter");
+    for ( const auto& iName : filtersConfig.getParameterNames() ) {
+      const auto& filterName = filtersConfig.getParameter<std::string>(iName);
+      m_selections_filter.emplace(iName, filtersConfig.getParameter<std::string>(iName));
+      m_filters.push_back(filterName);
+    }
   }
   virtual ~DictHLTMatchv2() {}
 
@@ -55,14 +61,43 @@ public:
     m_trigger_objects_token = collector.consumes<pat::TriggerObjectStandAloneCollection>(config.getUntrackedParameter<edm::InputTag>("objects", edm::InputTag("selectedPatTrigger")));
   }
 
-  using FilteredObject = std::pair<pat::TriggerObjectStandAlone,std::vector<std::string>>;
+  struct SelectedObject {
+    const pat::TriggerObjectStandAlone& obj;
+    std::vector<std::string> paths;
+    std::vector<std::string> filters;
+    SelectedObject(const pat::TriggerObjectStandAlone& theObj,
+                   std::vector<std::string>&& thePaths,
+                   std::vector<std::string>&& theFilters)
+      : obj(theObj)
+      , paths(thePaths)
+      , filters(theFilters)
+    {}
+
+    bool hasMatchingPath( const boost::regex& sel ) const
+    {
+      return std::any_of(std::begin(paths), std::end(paths),
+        [&sel] ( const std::string& trig ) {
+          return boost::regex_match(trig, sel);
+        });
+    }
+    bool kinMatch( const Lepton& lepton, float maxDR, float maxDPT ) const
+    {
+      return (( VectorUtil::DeltaR(lepton.p4(), obj.p4()) <= maxDR )
+           && ( std::abs(lepton.p4().Pt() - obj.p4().Pt()) / lepton.p4().Pt() <= maxDPT ) );
+    }
+    bool hasFilter( const std::string& filterLabel ) const
+    {
+      return std::end(filters) != std::find(std::begin(filters), std::end(filters), filterLabel);
+    }
+  };
 
   virtual Dict evaluate(const Candidate& cand,
       const edm::Event* event, const edm::EventSetup* /**/,
       const ProducersManager* /**/, const AnalyzersManager* /**/, const CategoryManager* /**/) const override;
 
 private:
-  std::map<std::string,std::vector<boost::regex>> m_selections;
+  std::map<std::string,std::vector<boost::regex>> m_selections_pathregex;
+  std::map<std::string,std::string> m_selections_filter;
   // Tokens
   edm::EDGetTokenT<edm::TriggerResults> m_hlt_token;
   // edm::EDGetTokenT<pat::PackedTriggerPrescales> m_prescales_token;
@@ -75,7 +110,10 @@ private:
   mutable edm::EventID m_lastEvent;
   mutable std::vector<std::string> m_paths;
   // mutable std::vector<uint16_t> m_prescales;
-  mutable std::vector<FilteredObject> m_triggerObjects;
+  std::vector<std::string> m_filters;
+  mutable std::vector<SelectedObject> m_triggerObjects;
+
+  //mutable std::size_t m_hasPrinted;
 
   void readTriggerNamesAndPrescales( const edm::Event* event ) const
   {
@@ -112,6 +150,14 @@ private:
       }
     }
     std::sort(std::begin(m_paths), std::end(m_paths));
+    //if ( ( ! m_paths.empty() ) && ( m_hasPrinted < 10 ) ) {
+    //  ++m_hasPrinted;
+    //  std::cout << "Trigger paths matching any of the selected: ";
+    //  for ( const auto& iPath : m_paths ) {
+    //    std::cout << iPath << ", ";
+    //  }
+    //  std::cout << std::endl;
+    //}
   }
 
   void collectTriggerObjects( const edm::Event* event ) const
@@ -120,78 +166,106 @@ private:
 
     edm::Handle<edm::TriggerResults> hlt;
     event->getByToken(m_hlt_token, hlt);
+    const bool filter = m_hlt_service.get() != nullptr;
     const edm::TriggerNames& triggerNames = event->triggerNames(*hlt);
-    bool filter = m_hlt_service.get() != nullptr;
     edm::Handle<pat::TriggerObjectStandAloneCollection> objects;
     event->getByToken(m_trigger_objects_token, objects);
 
-    std::vector<FilteredObject> result;
     if ( objects.isValid() ) {
       for ( pat::TriggerObjectStandAlone obj : *objects ) {
         obj.unpackPathNames(triggerNames);
+        //obj.unpackNamesAndLabels(event, hlt); // for newer cmssw
 
         std::vector<std::string> object_paths = obj.pathNames(false);
+        const std::vector<std::string>& object_filters = obj.filterLabels();
 
-        // Check if this object has triggered at least one of the path we are interesting in
+        // Check if this object has triggered at least one of the paths or filters we are interesting in
         if ( (!filter) || std::any_of(std::begin(object_paths), std::end(object_paths),
-          [this] ( const std::string& path ) { return std::end(m_paths) != std::find(std::begin(m_paths), std::end(m_paths), path); } ) )
+          [this] ( const std::string& path ) {
+            return std::end(m_paths) != std::find(std::begin(m_paths), std::end(m_paths), path);
+          } )          || std::any_of(std::begin(object_filters), std::end(object_filters),
+          [this] ( const std::string& filter ) {
+            return std::end(m_filters) != std::find(std::begin(m_filters), std::end(m_filters), filter);
+          } ) )
         {
           std::sort(std::begin(object_paths), std::end(object_paths));
 
-          std::vector<std::string> filtered_paths;
-          std::set_intersection(m_paths.begin(), m_paths.end(), object_paths.begin(), object_paths.end(), std::back_inserter(filtered_paths));
+          std::vector<std::string> sel_paths;
+          std::set_intersection(m_paths.begin(), m_paths.end(), object_paths.begin(), object_paths.end(), std::back_inserter(sel_paths));
 
-          m_triggerObjects.emplace_back(obj, filtered_paths);
+          std::vector<std::string> sel_filters;
+          std::set_intersection(std::begin(m_filters), std::end(m_filters), std::begin(object_filters), std::end(object_filters), std::back_inserter(sel_filters));
+
+          m_triggerObjects.emplace_back(obj, std::move(sel_paths), std::move(sel_filters));
         }
       }
     }
   }
 };
 
-bool matchHLTCandidate( const Lepton& lepton, const DictHLTMatchv2<Lepton>::FilteredObject& trigObj, const boost::regex& sel, float maxDR, float maxDPT )
+bool matchHLTCandidate( const Lepton& lepton, const pat::TriggerObjectStandAlone& trigObj, float maxDR, float maxDPT )
 {
-  return ( std::any_of(std::begin(trigObj.second), std::end(trigObj.second),
-        [&sel] ( const std::string& trig ) {
-          return boost::regex_match(trig, sel);
-        })
-       && ( VectorUtil::DeltaR(lepton.p4(), trigObj.first.p4()) <= maxDR )
-       && ( std::abs(lepton.p4().Pt() - trigObj.first.p4().Pt()) / lepton.p4().Pt() <= maxDPT )
-       );
+  return (( VectorUtil::DeltaR(lepton.p4(), trigObj.p4()) <= maxDR )
+       && ( std::abs(lepton.p4().Pt() - trigObj.p4().Pt()) / lepton.p4().Pt() <= maxDPT ) );
+
 }
 
 template<class Candidate>
-bool hasHLTCandidateMatch( const Candidate& cand, const std::vector<typename DictHLTMatchv2<Candidate>::FilteredObject>& trigObjects, const std::vector<boost::regex>& selections, float maxDR, float maxDPT );
+bool hasHLTCandidateMatchPath( const Candidate& cand, const std::vector<typename DictHLTMatchv2<Candidate>::SelectedObject>& trigObjects, const std::vector<boost::regex>& selections, float maxDR, float maxDPT );
 
 template<>
-bool hasHLTCandidateMatch<Lepton>( const Lepton& lepton, const std::vector<typename DictHLTMatchv2<Lepton>::FilteredObject>& trigObjects, const std::vector<boost::regex>& selections, float maxDR, float maxDPT )
+bool hasHLTCandidateMatchPath<Lepton>( const Lepton& lepton, const std::vector<typename DictHLTMatchv2<Lepton>::SelectedObject>& trigObjects, const std::vector<boost::regex>& selections, float maxDR, float maxDPT )
 {
   return std::any_of(std::begin(trigObjects), std::end(trigObjects),
-      [&,maxDR,maxDPT] ( const DictHLTMatchv2<Lepton>::FilteredObject& obj ) {
+      [&,maxDR,maxDPT] ( const DictHLTMatchv2<Lepton>::SelectedObject& obj ) {
         return std::any_of(std::begin(selections), std::end(selections),
           [&,maxDR,maxDPT] ( const boost::regex& sel ) {
-            return matchHLTCandidate(lepton, obj, sel, maxDR, maxDPT);
+            return obj.hasMatchingPath(sel) && obj.kinMatch(lepton, maxDR, maxDPT);
           });
         });
 }
 
 template<>
-bool hasHLTCandidateMatch<DiLepton>( const DiLepton& dilepton, const std::vector<typename DictHLTMatchv2<DiLepton>::FilteredObject>& trigObjects, const std::vector<boost::regex>& selections, float maxDR, float maxDPT )
+bool hasHLTCandidateMatchPath<DiLepton>( const DiLepton& dilepton, const std::vector<typename DictHLTMatchv2<DiLepton>::SelectedObject>& trigObjects, const std::vector<boost::regex>& selections, float maxDR, float maxDPT )
 {
   std::vector<std::string> mObj1, mObj2, mComm;
   for ( const auto& sel : selections ) {
     for ( const auto& obj : trigObjects ) {
-      if ( dilepton.first  && matchHLTCandidate(*(dilepton.first), obj, sel, maxDR, maxDPT ) ) {
-        std::copy_if(std::begin(obj.second), std::end(obj.second), std::back_inserter(mObj1),
-            [&sel] ( const std::string& obj ) { return boost::regex_match(obj, sel); } );
+      if ( dilepton.first  && obj.hasMatchingPath(sel) && obj.kinMatch(*(dilepton.first ), maxDR, maxDPT ) ) {
+        std::copy_if(std::begin(obj.paths), std::end(obj.paths), std::back_inserter(mObj1),
+            [&sel] ( const std::string& oSel ) { return boost::regex_match(oSel, sel); } );
       }
-      if ( dilepton.second && matchHLTCandidate(*(dilepton.second), obj, sel, maxDR, maxDPT ) ) {
-        std::copy_if(std::begin(obj.second), std::end(obj.second), std::back_inserter(mObj2),
-            [&sel] ( const std::string& obj ) { return boost::regex_match(obj, sel); } );
+      if ( dilepton.second && obj.hasMatchingPath(sel) && obj.kinMatch(*(dilepton.second), maxDR, maxDPT ) ) {
+        std::copy_if(std::begin(obj.paths), std::end(obj.paths), std::back_inserter(mObj2),
+            [&sel] ( const std::string& oSel ) { return boost::regex_match(oSel, sel); } );
       }
     }
   }
   std::set_intersection(std::begin(mObj1), std::end(mObj1), std::begin(mObj2), std::end(mObj2), std::back_inserter(mComm));
   return ! mComm.empty();
+}
+
+template<class Candidate>
+bool hasHLTCandidateMatchFilter( const Candidate& cand, const std::vector<typename DictHLTMatchv2<Candidate>::SelectedObject>& trigObjects, const std::string& filter, float maxDR, float maxDPT );
+
+template<>
+bool hasHLTCandidateMatchFilter<Lepton>( const Lepton& lepton, const std::vector<typename DictHLTMatchv2<Lepton>::SelectedObject>& trigObjects, const std::string& filter, float maxDR, float maxDPT )
+{
+  return std::any_of(std::begin(trigObjects), std::end(trigObjects),
+      [&,maxDR,maxDPT] ( const DictHLTMatchv2<Lepton>::SelectedObject& obj ) {
+        return obj.hasFilter(filter) && obj.kinMatch(lepton, maxDR, maxDPT);
+      });
+}
+template<>
+bool hasHLTCandidateMatchFilter<DiLepton>( const DiLepton& dilepton, const std::vector<typename DictHLTMatchv2<DiLepton>::SelectedObject>& trigObjects, const std::string& filter, float maxDR, float maxDPT )
+{ // FIXME untested, but need implementation to compile
+  return  ( std::any_of(std::begin(trigObjects), std::end(trigObjects),
+      [&,maxDR,maxDPT] ( const DictHLTMatchv2<DiLepton>::SelectedObject& obj ) {
+        return obj.hasFilter(filter) && obj.kinMatch(*(dilepton.first ), maxDR, maxDPT);
+      }) && std::any_of(std::begin(trigObjects), std::end(trigObjects),
+      [&,maxDR,maxDPT] ( const DictHLTMatchv2<DiLepton>::SelectedObject& obj ) {
+        return obj.hasFilter(filter) && obj.kinMatch(*(dilepton.second), maxDR, maxDPT);
+      }) );
 }
 
 template<class Candidate>
@@ -206,9 +280,13 @@ Dict DictHLTMatchv2<Candidate>::evaluate(const Candidate& cand,
   }
 
   Dict ret{};
-  for ( const auto& selection : m_selections ) {
-    ret.add(selection.first, hasHLTCandidateMatch<Candidate>(cand, m_triggerObjects, selection.second, m_hltDRCut, m_hltDPtCut));
+  for ( const auto& selection : m_selections_pathregex ) {
+    ret.add(selection.first, hasHLTCandidateMatchPath<Candidate>(cand, m_triggerObjects, selection.second, m_hltDRCut, m_hltDPtCut));
   }
+  for ( const auto& filter : m_selections_filter ) {
+    ret.add(filter.first, hasHLTCandidateMatchFilter<Candidate>(cand, m_triggerObjects, filter.second, m_hltDRCut, m_hltDPtCut));
+  }
+
   return ret;
 }
 
