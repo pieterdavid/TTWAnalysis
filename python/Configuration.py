@@ -263,6 +263,10 @@ def addTTWCandidatesAnalyzer(framework, name="fillLists", prefix=""):
                                 ## BDT weights
                                 WeightsFile=cms.FileInPath("cp3_llbb/TTWAnalysis/data/el_BDTG.weights_80.xml"),
                                 )),
+                            L1Vars=cms.PSet(type=cms.string("ttw_electronL1Vars"), parameters=cms.PSet(
+                                L1DRCut=cms.untracked.double(0.3),
+                                L1EGammaInputTag=cms.InputTag("caloStage2Digis", "EGamma"),
+                                )),
                             )
                         )),
                 Muons    =cms.PSet(type=cms.string("ttw_muonsanalyzerhelper"), prefix=cms.string("muon_"),
@@ -313,6 +317,10 @@ def addTTWCandidatesAnalyzer(framework, name="fillLists", prefix=""):
                                 ## BDT weights
                                 WeightsFile=cms.FileInPath("cp3_llbb/TTWAnalysis/data/mu_BDTG.weights_80.xml"),
                                 UniqueName=cms.string("80")
+                                )),
+                            L1Vars=cms.PSet(type=cms.string("ttw_muonL1Vars"), parameters=cms.PSet(
+                                L1DRCut=cms.untracked.double(0.3),
+                                L1MuonInputTag=cms.InputTag("gmtStage2Digis", "Muon"),
                                 )),
                             )
                         )),
