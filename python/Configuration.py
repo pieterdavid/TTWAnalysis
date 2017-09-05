@@ -342,13 +342,35 @@ def addTTWCandidatesAnalyzer(framework, name="fillLists", prefix=""):
                                 ))),
                             HLT2 =cms.PSet(type=cms.string("ttw_leptonHLTMatchv2"), parameters=cms.PSet(
                                 triggers=cms.untracked.FileInPath("cp3_llbb/TTWAnalysis/data/trigger.xml"),
-                                Selections=cms.PSet(
+                                Selections_PathRegex=cms.PSet(
                                     HLTMatch2_SingleMu=cms.vstring(["HLT_Iso(Tk)?Mu24_v.*"]),
                                     HLTMatch2_SingleEl=cms.vstring(["HLT_Ele32_eta2p1_WPTight_Gsf_v.*"]),
                                     ),
+                                Selections_Filter=cms.PSet(),
                                 hltDRCut = cms.untracked.double(0.3), # DeltaR cut for trigger matching
                                 hltDPtCut = cms.untracked.double(0.5), #Delta(Pt)/Pt cut for trigger matching
-                                ))
+                                )),
+
+                            HLTLegTnP =cms.PSet(type=cms.string("ttw_leptonHLTMatchv2"), parameters=cms.PSet(
+                                triggers=cms.untracked.FileInPath("cp3_llbb/TTWAnalysis/data/trigger.xml"), ## FIXME FIXME need more here ???
+                                Selections_PathRegex=cms.PSet(
+                                    ## TAGS
+                                    HLT_TagMu=cms.vstring(["HLT_IsoMu24_v.*"]),
+                                    HLT_TagEl=cms.vstring(["HLT_Ele25_eta2p1_WPTight_Gsf_v.*"]),
+                                    ## PROBES
+                                    HLT_MuMu_LegLead=cms.vstring(["HLT_Mu17_TrkIsoVVL_v.*"]),
+                                    HLT_MuMu_LegSublead=cms.vstring(["HLT_Mu8_TrkIsoVVL_v.*", "HLT_TkMu8_TrkIsoVVL_v.*"]),
+                                    #HLT_MuEl_LegLead=cms.vstring(["HLT_Mu23_TrkIsoVVL_v.*"]),
+                                    HLT_ElMu_LegSublead=cms.vstring(["HLT_Mu8_TrkIsoVVL_v.*"]),
+                                    ),
+                                Selections_Filter=cms.PSet(
+                                    ## PROBES
+                                    HLT_ElInCross_LegLead=cms.string("hltEle23Ele12CaloIdLTrackIdLIsoVLTrackIsoLeg1Filter"),
+                                    HLT_ElInCross_LegSublead=cms.string("hltEle23Ele12CaloIdLTrackIdLIsoVLTrackIsoLeg2Filter"),
+                                    HLT_MuEl_LegLead=cms.string("hltMu23TrkIsoVVLEle12CaloIdLTrackIdLIsoVLMuonlegL3IsoFiltered23"),
+                                    ),
+                                hltDRCut = cms.untracked.double(0.3), # DeltaR cut for trigger matching
+                                )),
                             )
                         )),
                 DiLeptons=cms.PSet(type=cms.string("ttw_dileptonsanalyzerhelper"), prefix=cms.string("ttW_dilepton_"),
@@ -360,7 +382,8 @@ def addTTWCandidatesAnalyzer(framework, name="fillLists", prefix=""):
                                 ))),
                             HLT2 =cms.PSet(type=cms.string("ttw_dileptonHLTMatchv2"), parameters=cms.PSet(
                                 triggers=cms.untracked.FileInPath("cp3_llbb/TTWAnalysis/data/trigger.xml"),
-                                Selections=cms.PSet(**dict(("HLTMatch2_{0}".format(ky), cms.vstring(*trigs)) for ky,trigs in dileptonTriggers.iteritems())),
+                                Selections_PathRegex=cms.PSet(**dict(("HLTMatch2_{0}".format(ky), cms.vstring(*trigs)) for ky,trigs in dileptonTriggers.iteritems())),
+                                Selections_Filter=cms.PSet(),
                                 hltDRCut = cms.untracked.double(0.3), # DeltaR cut for trigger matching
                                 hltDPtCut = cms.untracked.double(0.5), #Delta(Pt)/Pt cut for trigger matching
                                 ))
