@@ -135,6 +135,8 @@ b_tag_WPs = odict((nm, "(abs(eta)<2.4) && (bDiscriminator('{0}')>{1:.5f})".forma
                   , ("Tight" , 0.9432)
                   ])
 
+from cp3_llbb.Framework.JetsProducer import discriminators_deepFlavour
+
 def addTTWAnalyzer(framework, name="ttW", prefix="ttW_", applyFilter=True):
     framework.addAnalyzer(name, cms.PSet(
         type = cms.string('ttw_analyzer'),
@@ -334,9 +336,11 @@ def addTTWCandidatesAnalyzer(framework, name="fillLists", prefix=""):
                                 )),
                             IDVars=cms.PSet(type=cms.string("ttw_jetIDVars"), parameters=cms.PSet(
                                 # see https://twiki.cern.ch/twiki/bin/view/CMS/BtagRecommendation80XReReco
-                                bTaggers=cms.PSet(**dict((tagNm, cms.string(tagNm)) for tagNm in ("pfCombinedInclusiveSecondaryVertexV2BJetTags", "pfCombinedMVAV2BJetTags")))
-                                )),
-                            )
+                                bTaggers=cms.PSet(**dict(chain(
+                                    ((tagNm, cms.string(tagNm)) for tagNm in ("pfCombinedInclusiveSecondaryVertexV2BJetTags", "pfCombinedMVAV2BJetTags") ),
+                                    ((tagNm.replace(":", "_"), cms.string(tagNm)) for tagNm in discriminators_deepFlavour)
+                                ))),
+                            )))
                         )),
 
                 ### SELECTED/COMBINED CANDIDATES

@@ -50,8 +50,8 @@ if not options.runOnData: ## MC truth analyzer
 ## PRODUCERS
 customizeProducers(framework)
 
-if options.runOnData:
-    framework.redoJEC()
+from cp3_llbb.Framework.JetsProducer import discriminators_deepFlavour
+framework.redoJEC(addBtagDiscriminators=discriminators_deepFlavour)
 
 framework.applyMuonCorrection("rochester")
 framework.applyElectronRegression()
