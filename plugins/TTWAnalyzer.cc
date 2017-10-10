@@ -99,7 +99,12 @@ TTWAnalyzer::TTWAnalyzer(const std::string& name, const ROOT::TreeGroup& tree_, 
   m_jetBTagName( config.getParameter<std::string>("bTagName") ),
 
   m_hltDRCut( config.getUntrackedParameter<double>("hltDRCut", std::numeric_limits<float>::max()) ),
-  m_hltDPtCut( config.getUntrackedParameter<double>("hltDPtCut", std::numeric_limits<float>::max()) )
+  m_hltDPtCut( config.getUntrackedParameter<double>("hltDPtCut", std::numeric_limits<float>::max()) ),
+
+  m_maxNumLForLL(config.getUntrackedParameter<uint32_t>("MaxNumLForLL",  5)),
+  m_maxNumJForJJ(config.getUntrackedParameter<uint32_t>("MaxNumJForJJ", 10)),
+  m_maxNumLLForLLJJ(config.getUntrackedParameter<uint32_t>("MaxNumLLForLLJJ", 10)),
+  m_maxNumJJForLLJJ(config.getUntrackedParameter<uint32_t>("MaxNumJJForLLJJ", 10))
 {
   const auto& elWPCfg = config.getParameter<edm::ParameterSet>("ElectronWP");
   for ( const auto elWPName : elWPCfg.getParameterNames() ) {
@@ -143,6 +148,7 @@ TTWAnalyzer::TTWAnalyzer(const std::string& name, const ROOT::TreeGroup& tree_, 
   m_idxbbDRWP_PT  = IdxListForWPsHolder<decltype(m_bbWP)>(m_bbWP, tree, "diBJets_DRCut_BWP_PtOrdered_");
   m_idxbbDRWP_tag = IdxListForWPsHolder<decltype(m_bbWP)>(m_bbWP, tree, "diBJets_DRCut_BWP_tagOrdered_");
 }
+
 
 void TTWAnalyzer::doConsumes(const edm::ParameterSet& config, edm::ConsumesCollector&& collector)
 {
@@ -269,8 +275,12 @@ void TTWAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& setup,
 
   LogDebug("ttW") << "Dileptons";
 
-  for(uint16_t i1 = 0; i1 < m_leptons.size(); i1++) {
-    for(uint16_t i2 = i1 + 1; i2 < m_leptons.size(); i2++) {
+  const std::size_t nLForLL = std::min(m_maxNumLForLL, m_leptons.size());
+  if ( nLForLL != m_leptons.size() ) {
+    edm::LogWarning("ttW") << "Limiting the number of leptons for dileptons to " << nLForLL;
+  }
+  for(uint16_t i1 = 0; i1 < nLForLL; i1++) {
+    for(uint16_t i2 = i1 + 1; i2 < nLForLL; i2++) {
       const Lepton& l1 = m_leptons[i1];
       const Lepton& l2 = m_leptons[i2];
 
@@ -306,7 +316,7 @@ void TTWAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& setup,
       selJets_selID.push_back(iJ);
     }
   }
-  // std::cout << "Selected " << selJets_selID.size() << " jets (after jet ID)" << std::endl;
+  // std::cout << "ttW: Selected " << selJets_selID.size() << " jets (after jet ID)" << std::endl;
 
   for ( decltype(m_idxjDRWP)::iterator iWP{m_idxjDRWP.begin()}; m_idxjDRWP.end() != iWP; ++iWP ) {
     for ( auto iJ : selJets_selID ) {
@@ -337,9 +347,13 @@ void TTWAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& setup,
   LogDebug("ttW") << "Dijets";
 
   // Next, construct DiJets out of selected jets with selected ID (not accounting for minDRjl here)
-  for ( index_t i1{0}; selJets_selID.size() != i1; ++i1 ) {
+  const std::size_t nJForJJ = std::min(m_maxNumJForJJ, selJets_selID.size());
+  if ( nJForJJ != selJets_selID.size() ) {
+    edm::LogWarning("ttW") << "Limiting the number of jets for dijets to " << nJForJJ;
+  }
+  for ( index_t i1{0}; nJForJJ != i1; ++i1 ) {
     index_t iJ1 = selJets_selID[i1];
-    for ( index_t i2{static_cast<index_t>(i1+1)}; selJets_selID.size() != i2; ++i2 ) {
+    for ( index_t i2{static_cast<index_t>(i1+1)}; nJForJJ != i2; ++i2 ) {
       index_t iJ2 = selJets_selID[i2];
       m_dijets.emplace_back(iJ1, m_jets[iJ1], iJ2, m_jets[iJ2]);
     }
@@ -375,9 +389,17 @@ void TTWAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& setup,
 
   LogDebug("ttW") << "Dileptons-dijets";
 
+  const std::size_t nLLForLLJJ = std::min(m_maxNumLLForLLJJ, m_dileptons.size());
+  const std::size_t nJJForLLJJ = std::min(m_maxNumJJForLLJJ, m_dijets.size());
+  if ( nLLForLLJJ != m_dileptons.size() ) {
+    edm::LogWarning("ttW") << "Limited the number of dileptons for lljj combinations to " << nLLForLLJJ;
+  }
+  if ( nJJForLLJJ != m_dijets.size() ) {
+    edm::LogWarning("ttW") << "Limited the number of dijets for lljj combinations to " << nJJForLLJJ;
+  }
   // leptons-(b-)jets
-  for ( index_t iLL{0}; m_dileptons.size() != iLL; ++iLL ) {
-    for ( index_t iJJ{0}; m_dijets.size() != iJJ; ++iJJ ) {
+  for ( index_t iLL{0}; nLLForLLJJ != iLL; ++iLL ) {
+    for ( index_t iJJ{0}; nJJForLLJJ != iJJ; ++iJJ ) {
       m_dileptondijets.emplace_back(iLL, m_dileptons[iLL], iJJ, m_dijets[iJJ]);
       // TODO add delta R, delta Eta and DeltaPhi combinatorics (between jet and lepton)
     }

@@ -196,6 +196,8 @@ class TTWAnalyzer: public Framework::Analyzer {
         const float m_hltDRCut, m_hltDPtCut;
         TTWAnalysis::sindex_t matchOfflineLepton( const TTWAnalysis::Lepton& lepton, const HLTProducer& hlt ) const;
 
+        const std::size_t m_maxNumLForLL, m_maxNumJForJJ, m_maxNumLLForLLJJ, m_maxNumJJForLLJJ;
+
         edm::PtrVector<pat::Electron>              m_electrons;
         edm::PtrVector<pat::Muon>                  m_muons;
         std::vector<TTWAnalysis::Lepton>           m_leptons;
