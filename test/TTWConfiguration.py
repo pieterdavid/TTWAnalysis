@@ -69,9 +69,15 @@ if options.localTest:
             #"/store/data/Run2016F/MuonEG/MINIAOD/03Feb2017-v1/50000/0EEAA135-F8EA-E611-9F10-0CC47A7C35A8.root"
             #"/store/data/Run2016F/MuonEG/MINIAOD/03Feb2017-v1/50000/149ED47A-0CEB-E611-871F-0CC47A78A2F6.root"
             #"/store/data/Run2016F/MuonEG/MINIAOD/03Feb2017-v1/50000/0EEAA135-F8EA-E611-9F10-0CC47A7C35A8.root"
-            "/store/data/Run2016D/MuonEG/MINIAOD/03Feb2017-v1/80000/0A40F550-05EB-E611-B3DE-0CC47A4DEF68.root"
+            #"/store/data/Run2016D/MuonEG/MINIAOD/03Feb2017-v1/80000/0A40F550-05EB-E611-B3DE-0CC47A4DEF68.root"
+              "/store/data/Run2016F/DoubleEG/MINIAOD/03Feb2017-v1/80000/0006AFD8-F8EA-E611-9F9D-0CC47A13D09C.root"
+            , "/store/data/Run2016F/DoubleEG/MINIAOD/03Feb2017-v1/80000/00A7E4D9-F8EA-E611-A62B-002590E3A004.root"
+            , "/store/data/Run2016F/DoubleEG/MINIAOD/03Feb2017-v1/80000/022C3BB9-F0EA-E611-91DC-441EA171A998.root"
+            , "/store/data/Run2016F/DoubleEG/MINIAOD/03Feb2017-v1/80000/027FD1D9-04EB-E611-872F-D8D385AE8ACA.root"
+            , "/store/data/Run2016F/DoubleEG/MINIAOD/03Feb2017-v1/80000/02DEA755-FEEA-E611-94A1-0CC47AD98CFA.root"
+            , "/store/data/Run2016F/DoubleEG/MINIAOD/03Feb2017-v1/80000/04846305-13EB-E611-A9FB-0CC47AD98CF2.root"
             )
-        process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(25000))
+        process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(100000))
 
     else: ## MC
 
@@ -104,24 +110,35 @@ if options.localTest:
 
         #process.MessageLogger.cerr.FwkReport.reportEvery = 1
 
-        process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1000))
+        ##process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1000))
 
         ## ttH objects sync file & debug options
-        process.source.fileNames = cms.untracked.vstring(
-            "/store/mc/RunIISummer16MiniAODv2/TTWJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6_ext2-v1/110000/0015BB42-9BAA-E611-8C7F-0CC47A7E0196.root" ## ttH-multilepton sync sample
-            )
-        #
-        # process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1000))
-        #
-        # process.MessageLogger = cms.Service(
-        #     "MessageLogger",
-        #     destinations = cms.untracked.vstring(
-        #         "detailedInfo",
-        #         "critical"
-        #         ),
-        #     detailedInfo = cms.untracked.PSet(
-        #         threshold = cms.untracked.string("DEBUG")
-        #         ),
-        #     debugModules = cms.untracked.vstring("framework"),
-        #     categories=cms.untracked.vstring("ttW-electronID")
-        #     )
+        ## process.source.fileNames = cms.untracked.vstring(
+        ##     "/store/mc/RunIISummer16MiniAODv2/TTWJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6_ext2-v1/110000/0015BB42-9BAA-E611-8C7F-0CC47A7E0196.root" ## ttH-multilepton sync sample
+        ##     )
+
+        ## job1...
+        process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1000))
+        process.source.fileNames = cms.untracked.vstring([
+              "/store/mc/RunIISummer16MiniAODv2/TTWJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6_ext1-v3/70000/06598411-2DC8-E611-AFCC-02163E019D8F.root"
+        ##     , "/store/mc/RunIISummer16MiniAODv2/TTWJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6_ext1-v3/70000/10F7A751-6CC8-E611-A783-02163E0136E6.root"
+        ##     , "/store/mc/RunIISummer16MiniAODv2/TTWJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6_ext1-v3/70000/121FB5AD-3DC8-E611-93D6-02163E019E76.root"
+        ##     , "/store/mc/RunIISummer16MiniAODv2/TTWJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6_ext1-v3/70000/1E4F000D-6BC8-E611-B7A8-02163E012508.root"
+        ##     , "/store/mc/RunIISummer16MiniAODv2/TTWJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6_ext1-v3/70000/203F8856-43C8-E611-9ED8-02163E019D1A.root"
+            ])
+        ## process.source.skipEvents = cms.untracked.uint32(16952)
+        ## process.MessageLogger.cerr.FwkReport.reportEvery = 1
+
+        #process.MessageLogger = cms.Service(
+        #    "MessageLogger",
+        #    destinations = cms.untracked.vstring(
+        #        "detailedInfo",
+        #        "critical"
+        #        ),
+        #    detailedInfo = cms.untracked.PSet(
+        #        threshold = cms.untracked.string("DEBUG")
+        #        ),
+        #    debugModules = cms.untracked.vstring("framework"),
+        #    #categories=cms.untracked.vstring("ttW-electronID")
+        #    #categories=cms.untracked.vstring("ttW")
+        #    )
