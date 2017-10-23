@@ -62,7 +62,7 @@ public:
   }
 
   struct SelectedObject {
-    const pat::TriggerObjectStandAlone& obj;
+    pat::TriggerObjectStandAlone obj;
     std::vector<std::string> paths;
     std::vector<std::string> filters;
     SelectedObject(const pat::TriggerObjectStandAlone& theObj,
@@ -196,10 +196,18 @@ private:
           std::vector<std::string> sel_filters;
           std::set_intersection(std::begin(m_filters), std::end(m_filters), std::begin(object_filters), std::end(object_filters), std::back_inserter(sel_filters));
 
-          m_triggerObjects.emplace_back(obj, std::move(sel_paths), std::move(sel_filters));
+          m_triggerObjects.emplace_back(std::move(obj), std::move(sel_paths), std::move(sel_filters));
         }
       }
     }
+    //std::cout << "Collected trigger objects: " << m_triggerObjects.size() << std::endl;
+    //for ( const auto& trigObj : m_triggerObjects ) {
+    //  std::cout << "  - (PT=" << trigObj.obj.pt() << ",ETA=" << trigObj.obj.eta() << ",PHI=" << trigObj.obj.phi() << ") PATHS ";
+    //  for ( const auto& trigPath : trigObj.paths   ) { std::cout << trigPath << ", "; }
+    //  std::cout << " FILTERS ";
+    //  for ( const auto& trigFilt : trigObj.filters ) { std::cout << trigFilt << ", "; }
+    //  std::cout << std::endl;
+    //}
   }
 };
 
@@ -242,6 +250,21 @@ bool hasHLTCandidateMatchPath<DiLepton>( const DiLepton& dilepton, const std::ve
     }
   }
   std::set_intersection(std::begin(mObj1), std::end(mObj1), std::begin(mObj2), std::end(mObj2), std::back_inserter(mComm));
+  //std::cout << "HLT-v2 dilepton matching for ";
+  //for ( const auto& res : selections ) {
+  //  std::cout << res.str() << ", ";
+  //}
+  //if ( ( ! mObj1.empty() ) || ( ! mObj2.empty() ) || ( ! mComm.empty() ) ) {
+  //  std::cout << "First lepton matches ";
+  //  for ( const auto& sel : mObj1 ) { std::cout << sel << ", "; }
+  //  std::cout << " second lepton matches ";
+  //  for ( const auto& sel : mObj2 ) { std::cout << sel << ", "; }
+  //  std::cout << " --> common matches are ";
+  //  for ( const auto& sel : mComm ) { std::cout << sel << ", "; }
+  //  std::cout << std::endl;
+  //} else {
+  //  std::cout << "  NO match" << std::endl;
+  //}
   return ! mComm.empty();
 }
 
