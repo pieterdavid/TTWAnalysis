@@ -30,6 +30,7 @@ from cp3_llbb.Framework import Framework
 from cp3_llbb.TTWAnalysis.Configuration import addTTWAnalyzer, addTTWCandidatesAnalyzer, customizeProducers
 
 framework = Framework.Framework(options)
+framework.process.framework.compressionSettings = cms.untracked.int32(207)
 
 ## ANALYZERS
 addTTWAnalyzer          (framework, applyFilter=(not options.noCuts)) ## make candidates
