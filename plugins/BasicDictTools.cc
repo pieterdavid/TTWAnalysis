@@ -176,6 +176,8 @@ DEFINE_EDM_PLUGIN(TTWAnalysis::DictTool<pat::Muon    >::factory, TTWAnalysis::Di
 DEFINE_EDM_PLUGIN(TTWAnalysis::DictTool<pat::Jet     >::factory, TTWAnalysis::DictJetGenMatch                  , "ttw_jetGenMatch");
 
 #include "cp3_llbb/TTWAnalysis/interface/NewTypes.h"
+#include "cp3_llbb/Framework/interface/METProducer.h"
+#include "cp3_llbb/Framework/interface/ProducersManager.h"
 
 namespace TTWAnalysis {
 // Basic indices of the different candidates
@@ -191,12 +193,20 @@ public:
 
   virtual Dict evaluate(const TTWAnalysis::Lepton& lepton,
       const edm::Event* event, const edm::EventSetup* /**/,
-      const ProducersManager* /**/, const AnalyzersManager* /**/, const CategoryManager* /**/) const override
+      const ProducersManager* producers, const AnalyzersManager* /**/, const CategoryManager* /**/) const override
   {
     Dict ret{};
     ret.add("isEl", lepton.isEl());
     ret.add("isMu", lepton.isMu());
     ret.add("idx" , lepton.idx);
+    float mt = -1.;
+    if ( producers ) {
+      const auto& metProd = producers->get<METProducer>("met");
+      const auto& met = metProd.p4;
+      const auto p4 = lepton.p4();
+      mt = std::sqrt( 2.*p4.Pt()*met.Pt()* (1.-std::cos(p4.Phi()-met.Phi())) );
+    }
+    ret.add("MT"  , mt);
     return ret;
   }
 };
