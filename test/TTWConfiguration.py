@@ -27,13 +27,14 @@ import FWCore.ParameterSet.Config as cms
 
 from cp3_llbb.Framework import Framework
 
-from cp3_llbb.TTWAnalysis.Configuration import addTTWAnalyzer, addTTWCandidatesAnalyzer, customizeProducers
+from cp3_llbb.TTWAnalysis.Configuration import addTTWCategories, addTTWAnalyzer, addTTWCandidatesAnalyzer, customizeProducers
 
 framework = Framework.Framework(options)
 framework.process.framework.compressionSettings = cms.untracked.int32(207)
 
 ## ANALYZERS
-addTTWAnalyzer          (framework, applyFilter=(not options.noCuts)) ## make candidates
+addTTWCategories        (framework, applyFilter=(not options.noCuts))
+addTTWAnalyzer          (framework) ## make candidates
 addTTWCandidatesAnalyzer(framework) ## fill most branches
 
 if not options.runOnData: ## MC truth analyzer

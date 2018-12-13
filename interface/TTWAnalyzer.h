@@ -115,8 +115,6 @@ class TTWAnalyzer: public Framework::Analyzer {
         virtual void analyze(const edm::Event&, const edm::EventSetup&, const ProducersManager&, const AnalyzersManager&, const CategoryManager&) override;
         virtual void doConsumes(const edm::ParameterSet&, edm::ConsumesCollector&& collector) override;
 
-        virtual void registerCategories(CategoryManager& manager, const edm::ParameterSet&) override;
-
         // TODO move to the boost::any_range version when boost version > 1.57
         // access to the containers
         // template<typename ObjType> TTWAnalysis::Range<ObjType> getList() const;

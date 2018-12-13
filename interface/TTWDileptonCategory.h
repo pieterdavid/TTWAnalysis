@@ -5,6 +5,7 @@
 #include <string>
 #include <functional>
 
+#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "cp3_llbb/Framework/interface/Category.h"
 #include "cp3_llbb/TTWAnalysis/interface/Types.h"
 #include "cp3_llbb/TTWAnalysis/interface/HLTMatch.h"

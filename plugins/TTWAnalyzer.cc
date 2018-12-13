@@ -1,6 +1,5 @@
 //#include <cp3_llbb/TTWAnalysis/interface/Defines.h>
 #include "cp3_llbb/TTWAnalysis/interface/TTWAnalyzer.h"
-#include "cp3_llbb/TTWAnalysis/interface/TTWDileptonCategory.h"
 #include "cp3_llbb/TTWAnalysis/interface/stl_helpers.h"
 
 #include <cp3_llbb/Framework/interface/METProducer.h>
@@ -503,13 +502,6 @@ TTWAnalysis::sindex_t TTWAnalyzer::matchOfflineLepton( const TTWAnalysis::Lepton
 
   return index;
 }
-
-void TTWAnalyzer::registerCategories(CategoryManager& manager, const edm::ParameterSet& config) {
-  for ( const std::string& catName : config.getParameterNames() ) {
-    manager.new_category<TTWAnalysis::GDileptonCategory>(catName, catName+" category", config.getParameter<edm::ParameterSet>(catName));
-  }
-}
-
 
 #include <FWCore/PluginManager/interface/PluginFactory.h>
 DEFINE_EDM_PLUGIN(ExTreeMakerAnalyzerFactory, TTWAnalyzer, "ttw_analyzer");
