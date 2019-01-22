@@ -59,7 +59,6 @@ public:
     }
     ret.add("TrigEmu", passTrigEmu);
 
-    ret.add("NMissInner", valid && el->gsfTrack().isNonnull() ? el->gsfTrack()->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS) : 0 );
     ret.add("passConversionVeto", valid ? el->passConversionVeto() : false);
     ret.add("ThreeChargeAgreement", valid ? el->isGsfCtfScPixChargeConsistent() : false); // ??
 
