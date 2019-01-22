@@ -26,10 +26,10 @@ for i in xrange(nEvts):
 
     evt = {"id" : (tup.event_run, tup.event_lumi, tup.event_event)}
 
-    nLooseLep = tup.ttW_lepton_idx.size()
+    looseLep = tup.ttW_leptons_IDL_IsoL
     evt["muons"] = []
     evt["electrons"] = []
-    for iL in xrange(nLooseLep):
+    for iL in looseLep:
         li = tup.ttW_lepton_idx[iL]
         isMu = tup.ttW_lepton_isMu[iL]
         getL = functools.partial(getCont, tup, li, "muon" if isMu else "electron")
