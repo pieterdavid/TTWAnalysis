@@ -95,14 +95,15 @@ public:
       const ProducersManager* /**/, const AnalyzersManager* /**/, const CategoryManager* /**/) const override
   {
     const bool muValid{mu.isNonnull()};
-    const bool muValidIP{muValid && mu->muonBestTrack().isNonnull()};
+    const bool muValidIP{muValid && mu->innerTrack().isNonnull()};
     const reco::Vertex* pv = event ? getPV(event) : nullptr;
 
     Dict ret;
     // Same values used for cut-based muon ID. See:
     //     https://github.com/cms-sw/cmssw/blob/CMSSW_7_4_15/DataFormats/MuonReco/src/MuonSelectors.cc#L756
-    ret.add("dxy", pv && muValidIP ? mu->muonBestTrack()->dxy(pv->position()) : 0. );
-    ret.add("dz" , pv && muValidIP ? mu->muonBestTrack()->dz (pv->position()) : 0. );
+    // Modified to innerTrack for Ghent sync
+    ret.add("dxy", pv && muValidIP ? mu->innerTrack()->dxy(pv->position()) : 0. );
+    ret.add("dz" , pv && muValidIP ? mu->innerTrack()->dz (pv->position()) : 0. );
     ret.add("dca", muValid ? mu->dB(pat::Muon::PV3D)/mu->edB(pat::Muon::PV3D) : -1.);
 
     return ret;

@@ -165,7 +165,7 @@ public:
     ret.add("hadronFlavor", valid ? jet->hadronFlavour() : -10);
     ret.add("puJetID"     , valid ? jet->userFloat("pileupJetId:fullDiscriminant") : 0);
     for ( const auto& varNm : m_bTaggers ) {
-      ret.add(varNm.first, valid ? jet->bDiscriminator(varNm.second) : 0);
+      ret.add(varNm.first, valid ? jet->bDiscriminator(varNm.second) : -1.);
     }
     return ret;
   }

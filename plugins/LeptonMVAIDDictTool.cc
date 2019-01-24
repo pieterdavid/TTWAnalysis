@@ -533,7 +533,6 @@ TTWAnalysis::Dict TTWAnalysis::DictGhentElectronMVA::evaluate(edm::Ptr<pat::Elec
     const ProducersManager* /**/, const AnalyzersManager* /**/, const CategoryManager* /**/) const
 {
   const bool valid{cand.isNonnull() && cand->superCluster().isNonnull()};
-  const double eta = valid ? cand->superCluster()->eta() : 0.;
   const reco::Vertex* pv = event ? getPV(event) : nullptr;
 
   edm::Handle<std::vector<pat::Jet>> jets;
@@ -558,7 +557,7 @@ TTWAnalysis::Dict TTWAnalysis::DictGhentElectronMVA::evaluate(edm::Ptr<pat::Elec
   }
 
   getVar("pt"                  ) = valid ? cand->pt() : -1.;
-  getVar("eta"                 ) = eta;
+  getVar("eta"                 ) = valid ? std::abs(cand->eta()) : -1.;
   getVar("trackMultClosestJet" ) = jetNDauChargedMVASel;
   getVar("miniIsoCharged"      ) = valid ? cand->userFloat("miniIso_AbsCharged")/cand->pt() : -1.;
   getVar("miniIsoNeutral"      ) = valid ? cand->userFloat("miniIso_AbsNeutral_rhoArea")/cand->pt() : -1.;
@@ -644,8 +643,8 @@ TTWAnalysis::Dict TTWAnalysis::DictGhentMuonMVA::evaluate(edm::Ptr<pat::Muon> ca
 
   // Muon-specific
   getVar("sip3d"               ) = valid ? std::abs(cand->dB(pat::Muon::PV3D)/cand->edB(pat::Muon::PV3D)) : -1.;
-  getVar("dxy"                 ) = pv && valid && cand->muonBestTrack().isNonnull() ? std::log(std::abs(cand->muonBestTrack()->dxy(pv->position()))) : 0.; // Ghent: inner track, but should be same
-  getVar("dz"                  ) = pv && valid && cand->muonBestTrack().isNonnull() ? std::log(std::abs(cand->muonBestTrack()->dz (pv->position()))) : 0.; // Ghent: inner track, but should be same
+  getVar("dxy"                 ) = pv && valid && cand->innerTrack().isNonnull() ? std::log(std::abs(cand->innerTrack()->dxy(pv->position()))) : 0.;
+  getVar("dz"                  ) = pv && valid && cand->innerTrack().isNonnull() ? std::log(std::abs(cand->innerTrack()->dz (pv->position()))) : 0.;
   getVar("segmentCompatibility") = valid ? cand->segmentCompatibility() : false;
   LogDebug("GhentLeptonMVA") << "all good, next: evaluating";
 
