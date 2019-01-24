@@ -559,7 +559,7 @@ TTWAnalysis::Dict TTWAnalysis::DictGhentElectronMVA::evaluate(edm::Ptr<pat::Elec
 
   getVar("pt"                  ) = valid ? cand->pt() : -1.;
   getVar("eta"                 ) = eta;
-  getVar("trackmultclosestjet" ) = jetNDauChargedMVASel;
+  getVar("trackMultClosestJet" ) = jetNDauChargedMVASel;
   getVar("miniIsoCharged"      ) = valid ? cand->userFloat("miniIso_AbsCharged")/cand->pt() : -1.;
   getVar("miniIsoNeutral"      ) = valid ? cand->userFloat("miniIso_AbsNeutral_rhoArea")/cand->pt() : -1.;
   getVar("pTRel"               ) = ( valid && jet ) ? ptRelv2(lajp, cand->p4()) : 0.; // should be OK (different implementation, but same definition)
@@ -625,7 +625,6 @@ TTWAnalysis::Dict TTWAnalysis::DictGhentMuonMVA::evaluate(edm::Ptr<pat::Muon> ca
     lajp = jetLepAwareJEC(jet, cand->p4(), true);
     if ( pv ) {
       jetNDauChargedMVASel = numberOfChargedDaughtersMVASel(jet, cand.get(), pv, lajp);
-      LogDebug("GhentLeptonMVA") << "Best matching jet daughters (now: " << recalcNum << "; fun: " << jetNDauChargedMVASel << ") :\n" << daugsOut.str();
     }
     LogDebug("GhentLeptonMVA") << "After lepton-aware JEC: " << printMomentum(lajp);
   }

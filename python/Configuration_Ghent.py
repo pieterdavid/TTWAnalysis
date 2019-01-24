@@ -63,6 +63,9 @@ mu_ID_WPs  = odict(Loose=" && ".join("( {0} )".format(cut) for cut in [
     # pt and eta applied separately
       'abs(userFloat("dxy")) < .05'
     , 'abs(userFloat("dz"))  < .1'
+    , 'isPFMuon'
+    , 'isTrackerMuon || isGlobalMuon'
+    , 'innerTrack().isNonnull()'
     ]))
 el_Iso_WPs = odict(Loose = "1 == 1")
 mu_Iso_WPs = odict(Loose = "1 == 1")
