@@ -391,6 +391,8 @@ def addTTWCandidatesAnalyzer(framework, name="fillLists", prefix="", addCombinat
                         Selections_PathRegex=cms.PSet(
                             HLTMatch2_SingleMu=cms.vstring(["HLT_Iso(Tk)?Mu24_v.*"]),
                             HLTMatch2_SingleEl=cms.vstring(["HLT_Ele32_eta2p1_WPTight_Gsf_v.*"]),
+                            HLTMatch2_SingleMu17=cms.vstring(["HLT_Mu17_v.*"]),
+                            HLTMatch2_SingleEl17=cms.vstring(["HLT_Ele17_CaloIdM_TrackIdM_PFJet30_v.*"]),
                             ),
                         Selections_Filter=cms.PSet(),
                         hltDRCut = cms.untracked.double(0.3), # DeltaR cut for trigger matching

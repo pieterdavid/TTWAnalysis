@@ -18,6 +18,10 @@
         <!-- T&P: MuMu and MuEl/ElMu muon legs -->
         <path>HLT_Mu17_TrkIsoVVL_v.*</path>
         <path>HLT_(Tk)?Mu8_TrkIsoVVL_v.*</path>
+
+        <!-- lepton fakerate measurement set -->
+        <path>HLT_Mu17_v.*</path>
+        <path>HLT_Ele17_CaloIdM_TrackIdM_PFJet30_v.*</path>
     </runs>
 </triggers>
 
