@@ -148,10 +148,10 @@ def addTTWAnalyzer(framework, name="ttW", prefix="ttW_"):
             jetsProducer = cms.string('jets'),
             metProducer = cms.string('met'),
 
-            electronPtCut = cms.untracked.double(5),
+            electronPtCut = cms.untracked.double(10),
             electronEtaCut = cms.untracked.double(2.5),
 
-            muonPtCut = cms.untracked.double(5),
+            muonPtCut = cms.untracked.double(10),
             muonEtaCut = cms.untracked.double(2.4),
 
             jetPtCut = cms.untracked.double(10),
@@ -391,8 +391,13 @@ def addTTWCandidatesAnalyzer(framework, name="fillLists", prefix="", addCombinat
                         Selections_PathRegex=cms.PSet(
                             HLTMatch2_SingleMu=cms.vstring(["HLT_Iso(Tk)?Mu24_v.*"]),
                             HLTMatch2_SingleEl=cms.vstring(["HLT_Ele32_eta2p1_WPTight_Gsf_v.*"]),
+                            HLTMatch2_SingleMu27=cms.vstring(["HLT_Mu27_v.*"]),
                             HLTMatch2_SingleMu17=cms.vstring(["HLT_Mu17_v.*"]),
+                            HLTMatch2_SingleMu8=cms.vstring(["HLT_Mu8_v.*"]),
+                            HLTMatch2_SingleMu3_PFJet40=cms.vstring(["HLT_Mu3_PFJet40_v.*"]),
+                            HLTMatch2_SingleEl23=cms.vstring(["HLT_Ele23_CaloIdM_TrackIdM_PFJet30_v.*"]),
                             HLTMatch2_SingleEl17=cms.vstring(["HLT_Ele17_CaloIdM_TrackIdM_PFJet30_v.*"]),
+                            HLTMatch2_SingleEl8=cms.vstring(["HLT_Ele8_CaloIdM_TrackIdM_PFJet30_v.*"]),
                             ),
                         Selections_Filter=cms.PSet(),
                         hltDRCut = cms.untracked.double(0.3), # DeltaR cut for trigger matching

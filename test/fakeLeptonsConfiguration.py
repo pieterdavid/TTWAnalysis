@@ -26,10 +26,13 @@ from cp3_llbb.Framework import Framework
 from cp3_llbb.TTWAnalysis.Configuration import addTTWCategories, addTTWAnalyzer, addTTWCandidatesAnalyzer, customizeProducers
 
 framework = Framework.Framework(options)
-framework.process.framework.compressionSettings = cms.untracked.int32(207)
+fwkmod = framework.process.framework
+fwkmod.compressionSettings = cms.untracked.int32(207)
 
 framework.process.fakeHltFilter = cms.EDFilter("TriggerResultsFilter",
-        triggerConditions=cms.vstring("HLT_Mu17_v* OR HLT_Ele17_CaloIdM_TrackIdM_PFJet30_v*"),
+        triggerConditions=cms.vstring(" OR ".join([
+            "HLT_Mu27_v*", "HLT_Mu17_v*", "HLT_Mu8_v*", "HLT_Mu3_PFJet40_v*",
+            "HLT_Ele23_CaloIdM_TrackIdM_PFJet30_v*", "HLT_Ele17_CaloIdM_TrackIdM_PFJet30_v*", "HLT_Ele8_CaloIdM_TrackIdM_PFJet30_v*"])),
         hltResults=cms.InputTag("TriggerResults", "", "HLT"),
         l1tResults=cms.InputTag(""),#cms.InputTag("gtStage2Digis"),
         l1tIgnoreMaskAndPrescale=cms.bool(False),
@@ -84,21 +87,29 @@ framework.applyElectronSmearing()
 
 process = framework.create()
 
+## turn off all combinatorics
+ttwAna = fwkmod.analyzers.ttW.parameters
+ttwAna.MaxNumLForLL = cms.untracked.uint32(0)
+ttwAna.MaxNumJForJJ = cms.untracked.uint32(0)
+ttwAna.MaxNumLLForLLJJ = cms.untracked.uint32(0)
+ttwAna.MaxNumJJForLLJJ = cms.untracked.uint32(0)
+
 if options.localTest:
     if options.runOnData:
         process.source.fileNames = cms.untracked.vstring(
-              "/store/data/Run2016G/SingleElectron/MINIAOD/03Feb2017-v1/50000/5673D8AE-21EB-E611-8CEE-002590E3A0FA.root"
+              "/store/data/Run2016G/SingleMuon/MINIAOD/03Feb2017-v1/100000/7843236A-BBEA-E611-8E2C-001E675A690A.root"
+            , "/store/data/Run2016G/SingleElectron/MINIAOD/03Feb2017-v1/50000/5673D8AE-21EB-E611-8CEE-002590E3A0FA.root"
+            ##
             , "/store/data/Run2016G/SingleElectron/MINIAOD/03Feb2017-v1/50000/E05CF4CC-23EB-E611-B2F8-0025900EAB5E.root"
-            , "/store/data/Run2016G/SingleElectron/MINIAOD/03Feb2017-v1/50000/8228B3C8-23EB-E611-AEEC-002590E39DF4.root"
-            , "/store/data/Run2016G/SingleElectron/MINIAOD/03Feb2017-v1/50000/58B756C5-23EB-E611-A6F3-0CC47A13CD56.root"
-            , "/store/data/Run2016G/SingleElectron/MINIAOD/03Feb2017-v1/50000/32C03BC6-23EB-E611-91BC-002590E3A286.root"
-            , "/store/data/Run2016G/SingleMuon/MINIAOD/03Feb2017-v1/100000/7843236A-BBEA-E611-8E2C-001E675A690A.root"
             , "/store/data/Run2016G/SingleMuon/MINIAOD/03Feb2017-v1/100000/829FAA6D-BBEA-E611-81E6-001E67A4061D.root"
+            , "/store/data/Run2016G/SingleElectron/MINIAOD/03Feb2017-v1/50000/8228B3C8-23EB-E611-AEEC-002590E39DF4.root"
             , "/store/data/Run2016G/SingleMuon/MINIAOD/03Feb2017-v1/100000/04B06F6B-BBEA-E611-A113-001E67A3F92F.root"
+            , "/store/data/Run2016G/SingleElectron/MINIAOD/03Feb2017-v1/50000/58B756C5-23EB-E611-A6F3-0CC47A13CD56.root"
             , "/store/data/Run2016G/SingleMuon/MINIAOD/03Feb2017-v1/100000/6274027F-BBEA-E611-9757-001E67D80528.root"
+            , "/store/data/Run2016G/SingleElectron/MINIAOD/03Feb2017-v1/50000/32C03BC6-23EB-E611-91BC-002590E3A286.root"
             , "/store/data/Run2016G/SingleMuon/MINIAOD/03Feb2017-v1/100000/881A217B-BBEA-E611-9EB1-001E67D80528.root"
             )
-        process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
+        process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1000000))
 
     else: ## MC
 

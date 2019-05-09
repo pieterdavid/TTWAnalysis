@@ -272,25 +272,27 @@ void TTWAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& setup,
   //       DILEPTONS       //
   ///////////////////////////
 
-  LogDebug("ttW") << "Dileptons";
+  if ( m_maxNumLForLL ) {
+    LogDebug("ttW") << "Dileptons";
 
-  const std::size_t nLForLL = std::min(m_maxNumLForLL, m_leptons.size());
-  if ( nLForLL != m_leptons.size() ) {
-    edm::LogWarning("ttW") << "Limiting the number of leptons for dileptons to " << nLForLL;
-  }
-  for(uint16_t i1 = 0; i1 < nLForLL; i1++) {
-    for(uint16_t i2 = i1 + 1; i2 < nLForLL; i2++) {
-      const Lepton& l1 = m_leptons[i1];
-      const Lepton& l2 = m_leptons[i2];
-
-      m_dileptons.emplace_back(i1,l1,i2,l2);
+    const std::size_t nLForLL = std::min(m_maxNumLForLL, m_leptons.size());
+    if ( nLForLL != m_leptons.size() ) {
+      edm::LogWarning("ttW") << "Limiting the number of leptons for dileptons to " << nLForLL;
     }
-  }
+    for(uint16_t i1 = 0; i1 < nLForLL; i1++) {
+      for(uint16_t i2 = i1 + 1; i2 < nLForLL; i2++) {
+        const Lepton& l1 = m_leptons[i1];
+        const Lepton& l2 = m_leptons[i2];
 
-  for ( decltype(m_idxllWP)::iterator illWP{m_idxllWP.begin()}; m_idxllWP.end() != illWP; ++illWP ) {
-    for ( std::size_t iLL{0}; m_dileptons.size() != iLL; ++iLL ) {
-      if ( illWP.cut()(m_dileptons[iLL]) ) {
-        illWP.idxList()->push_back(iLL);
+        m_dileptons.emplace_back(i1,l1,i2,l2);
+      }
+    }
+
+    for ( decltype(m_idxllWP)::iterator illWP{m_idxllWP.begin()}; m_idxllWP.end() != illWP; ++illWP ) {
+      for ( std::size_t iLL{0}; m_dileptons.size() != iLL; ++iLL ) {
+        if ( illWP.cut()(m_dileptons[iLL]) ) {
+          illWP.idxList()->push_back(iLL);
+        }
       }
     }
   }
@@ -343,126 +345,130 @@ void TTWAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& setup,
   //       DIJETS          //
   ///////////////////////////
 
-  LogDebug("ttW") << "Dijets";
+  if ( m_maxNumJForJJ ) {
+    LogDebug("ttW") << "Dijets";
 
-  // Next, construct DiJets out of selected jets with selected ID (not accounting for minDRjl here)
-  const std::size_t nJForJJ = std::min(m_maxNumJForJJ, selJets_selID.size());
-  if ( nJForJJ != selJets_selID.size() ) {
-    edm::LogWarning("ttW") << "Limiting the number of jets for dijets to " << nJForJJ;
-  }
-  for ( index_t i1{0}; nJForJJ != i1; ++i1 ) {
-    index_t iJ1 = selJets_selID[i1];
-    for ( index_t i2{static_cast<index_t>(i1+1)}; nJForJJ != i2; ++i2 ) {
-      index_t iJ2 = selJets_selID[i2];
-      m_dijets.emplace_back(iJ1, m_jets[iJ1], iJ2, m_jets[iJ2]);
+    // Next, construct DiJets out of selected jets with selected ID (not accounting for minDRjl here)
+    const std::size_t nJForJJ = std::min(m_maxNumJForJJ, selJets_selID.size());
+    if ( nJForJJ != selJets_selID.size() ) {
+      edm::LogWarning("ttW") << "Limiting the number of jets for dijets to " << nJForJJ;
     }
-  }
-  for ( decltype(m_idxjjDRWP)::iterator iWP{m_idxjjDRWP.begin()}; m_idxjjDRWP.end() != iWP; ++iWP ) {
-    for ( index_t iJJ{0}; m_dijets.size() != iJJ; ++iJJ ) {
-      if ( minDRjl(m_leptons, *(m_idxlWP.at(iWP.index()).idxList()), m_dijets[iJJ]) > m_jetDRleptonCut ) {
-        iWP.idxList()->push_back(iJJ);
+    for ( index_t i1{0}; nJForJJ != i1; ++i1 ) {
+      index_t iJ1 = selJets_selID[i1];
+      for ( index_t i2{static_cast<index_t>(i1+1)}; nJForJJ != i2; ++i2 ) {
+        index_t iJ2 = selJets_selID[i2];
+        m_dijets.emplace_back(iJ1, m_jets[iJ1], iJ2, m_jets[iJ2]);
       }
     }
-  }
-  for ( decltype(m_idxbbDRWP_PT)::iterator iWP{m_idxbbDRWP_PT.begin()}; m_idxbbDRWP_PT.end() != iWP; ++iWP ) {
-    for ( auto iJJ : *(m_idxjjDRWP.find(iWP.cut().first).idxList()) ) {
-      if ( iWP.cut().second(m_dijets[iJJ]) ) {
-        iWP.idxList()->push_back(iJJ); // NOTE di-b working points may include an ETA cut
+    for ( decltype(m_idxjjDRWP)::iterator iWP{m_idxjjDRWP.begin()}; m_idxjjDRWP.end() != iWP; ++iWP ) {
+      for ( index_t iJJ{0}; m_dijets.size() != iJJ; ++iJJ ) {
+        if ( minDRjl(m_leptons, *(m_idxlWP.at(iWP.index()).idxList()), m_dijets[iJJ]) > m_jetDRleptonCut ) {
+          iWP.idxList()->push_back(iJJ);
+        }
       }
     }
-  }
+    for ( decltype(m_idxbbDRWP_PT)::iterator iWP{m_idxbbDRWP_PT.begin()}; m_idxbbDRWP_PT.end() != iWP; ++iWP ) {
+      for ( auto iJJ : *(m_idxjjDRWP.find(iWP.cut().first).idxList()) ) {
+        if ( iWP.cut().second(m_dijets[iJJ]) ) {
+          iWP.idxList()->push_back(iJJ); // NOTE di-b working points may include an ETA cut
+        }
+      }
+    }
 
-  for ( std::size_t i{0}; m_idxbbDRWP_PT.size() != i; ++i ) {
-    indexlist_t& tagIdx = *(m_idxbbDRWP_tag.at(i).idxList());
-    tagIdx = *(m_idxbbDRWP_PT.at(i).idxList());
-    std::stable_sort(std::begin(tagIdx), std::end(tagIdx),
-        MoreOf<index_t>([this] ( index_t iJJ ) {
-          return m_dijets[iJJ].first->bDiscriminator(m_jetBTagName)
-               + m_dijets[iJJ].second->bDiscriminator(m_jetBTagName);
-        }));
+    for ( std::size_t i{0}; m_idxbbDRWP_PT.size() != i; ++i ) {
+      indexlist_t& tagIdx = *(m_idxbbDRWP_tag.at(i).idxList());
+      tagIdx = *(m_idxbbDRWP_PT.at(i).idxList());
+      std::stable_sort(std::begin(tagIdx), std::end(tagIdx),
+          MoreOf<index_t>([this] ( index_t iJJ ) {
+            return m_dijets[iJJ].first->bDiscriminator(m_jetBTagName)
+                 + m_dijets[iJJ].second->bDiscriminator(m_jetBTagName);
+          }));
+    }
   }
 
   ///////////////////////////
   //    EVENT VARIABLES    //
   ///////////////////////////
 
-  LogDebug("ttW") << "Dileptons-dijets";
+  if ( m_maxNumLLForLLJJ && m_maxNumJJForLLJJ ) {
+    LogDebug("ttW") << "Dileptons-dijets";
 
-  const std::size_t nLLForLLJJ = std::min(m_maxNumLLForLLJJ, m_dileptons.size());
-  const std::size_t nJJForLLJJ = std::min(m_maxNumJJForLLJJ, m_dijets.size());
-  if ( nLLForLLJJ != m_dileptons.size() ) {
-    edm::LogWarning("ttW") << "Limited the number of dileptons for lljj combinations to " << nLLForLLJJ;
-  }
-  if ( nJJForLLJJ != m_dijets.size() ) {
-    edm::LogWarning("ttW") << "Limited the number of dijets for lljj combinations to " << nJJForLLJJ;
-  }
-  // leptons-(b-)jets
-  for ( index_t iLL{0}; nLLForLLJJ != iLL; ++iLL ) {
-    for ( index_t iJJ{0}; nJJForLLJJ != iJJ; ++iJJ ) {
-      m_dileptondijets.emplace_back(iLL, m_dileptons[iLL], iJJ, m_dijets[iJJ]);
-      // TODO add delta R, delta Eta and DeltaPhi combinatorics (between jet and lepton)
+    const std::size_t nLLForLLJJ = std::min(m_maxNumLLForLLJJ, m_dileptons.size());
+    const std::size_t nJJForLLJJ = std::min(m_maxNumJJForLLJJ, m_dijets.size());
+    if ( nLLForLLJJ != m_dileptons.size() ) {
+      edm::LogWarning("ttW") << "Limited the number of dileptons for lljj combinations to " << nLLForLLJJ;
     }
-  }
-  for ( decltype(m_idxlljjDRWP)::iterator iWP{m_idxlljjDRWP.begin()}; m_idxlljjDRWP.end() != iWP; ++iWP ) {
-    for ( index_t iLLJJ{0}; m_dileptondijets.size() != iLLJJ; ++iLLJJ ) {
-      if ( ( minDRjl(m_leptons, *(m_idxlWP.find(iWP.cut().first).idxList()), *(m_dileptondijets[iLLJJ].jj)) > m_jetDRleptonCut ) && ( iWP.cut().second(*(m_dileptondijets[iLLJJ].ll)) ) ) {
-        iWP.idxList()->push_back(iLLJJ);
+    if ( nJJForLLJJ != m_dijets.size() ) {
+      edm::LogWarning("ttW") << "Limited the number of dijets for lljj combinations to " << nJJForLLJJ;
+    }
+    // leptons-(b-)jets
+    for ( index_t iLL{0}; nLLForLLJJ != iLL; ++iLL ) {
+      for ( index_t iJJ{0}; nJJForLLJJ != iJJ; ++iJJ ) {
+        m_dileptondijets.emplace_back(iLL, m_dileptons[iLL], iJJ, m_dijets[iJJ]);
+        // TODO add delta R, delta Eta and DeltaPhi combinatorics (between jet and lepton)
       }
     }
-  }
-  for ( decltype(m_idxllbbDRWP_PT)::iterator iWP{m_idxllbbDRWP_PT.begin()}; m_idxllbbDRWP_PT.end() != iWP; ++iWP ) {
-    for ( auto iLLJJ : *(m_idxlljjDRWP.find(iWP.cut().first).idxList()) ) {
-      if ( iWP.cut().second(*(m_dileptondijets[iLLJJ].jj)) ) {
-        iWP.idxList()->push_back(iLLJJ); // NOTE di-b working points may include an ETA cut
+    for ( decltype(m_idxlljjDRWP)::iterator iWP{m_idxlljjDRWP.begin()}; m_idxlljjDRWP.end() != iWP; ++iWP ) {
+      for ( index_t iLLJJ{0}; m_dileptondijets.size() != iLLJJ; ++iLLJJ ) {
+        if ( ( minDRjl(m_leptons, *(m_idxlWP.find(iWP.cut().first).idxList()), *(m_dileptondijets[iLLJJ].jj)) > m_jetDRleptonCut ) && ( iWP.cut().second(*(m_dileptondijets[iLLJJ].ll)) ) ) {
+          iWP.idxList()->push_back(iLLJJ);
+        }
       }
     }
-  }
-
-  // Order selected di-lepton-di-b-jets according to decreasing CSVv2 discriminant
-  for ( std::size_t i{0}; m_idxllbbDRWP_PT.size() != i; ++i ) {
-    indexlist_t& tagIdx = *(m_idxllbbDRWP_tag.at(i).idxList());
-    tagIdx = *(m_idxllbbDRWP_PT.at(i).idxList());
-    std::stable_sort(std::begin(tagIdx), std::end(tagIdx),
-        MoreOf<index_t>([this] ( index_t iLLJJ ) {
-          return m_dileptondijets[iLLJJ].jj->first->bDiscriminator(m_jetBTagName)
-               + m_dileptondijets[iLLJJ].jj->second->bDiscriminator(m_jetBTagName);
-        }));
-  }
-
-  // leptons-(b-)jets-MET
-
-  LogDebug("ttW") << "Dileptons-Dijets-MET";
-
-  // Using regular MET
-  const myLorentzVector met{producers.get<METProducer>(m_met_producer).p4};
-  for ( index_t illjj{0}; m_dileptondijets.size() != illjj; ++illjj ) {
-    m_dileptondijetmets.emplace_back(illjj, m_dileptondijets[illjj], met);
-    // TODO delta(R,eta,phi) l-met, j-met, min&max
-  }
-  for ( decltype(m_idxlljjmDRWP)::iterator iWP{m_idxlljjmDRWP.begin()}; m_idxlljjmDRWP.end() != iWP; ++iWP ) {
-    for ( index_t iLLJJM{0}; m_dileptondijetmets.size() != iLLJJM; ++iLLJJM ) {
-      if ( ( minDRjl(m_leptons, *(m_idxlWP.find(iWP.cut().first).idxList()), *(m_dileptondijetmets[iLLJJM].lljj->jj)) > m_jetDRleptonCut ) && ( iWP.cut().second(*(m_dileptondijetmets[iLLJJM].lljj->ll)) ) ) {
-        iWP.idxList()->push_back(iLLJJM);
+    for ( decltype(m_idxllbbDRWP_PT)::iterator iWP{m_idxllbbDRWP_PT.begin()}; m_idxllbbDRWP_PT.end() != iWP; ++iWP ) {
+      for ( auto iLLJJ : *(m_idxlljjDRWP.find(iWP.cut().first).idxList()) ) {
+        if ( iWP.cut().second(*(m_dileptondijets[iLLJJ].jj)) ) {
+          iWP.idxList()->push_back(iLLJJ); // NOTE di-b working points may include an ETA cut
+        }
       }
     }
-  }
-  for ( decltype(m_idxllbbmDRWP_PT)::iterator iWP{m_idxllbbmDRWP_PT.begin()}; m_idxllbbmDRWP_PT.end() != iWP; ++iWP ) {
-    for ( auto iLLJJM : *(m_idxlljjmDRWP.find(iWP.cut().first).idxList()) ) {
-      if ( iWP.cut().second(*(m_dileptondijetmets[iLLJJM].lljj->jj)) ) {
-        iWP.idxList()->push_back(iLLJJM); // NOTE di-b working points may include an ETA cut
+
+    // Order selected di-lepton-di-b-jets according to decreasing CSVv2 discriminant
+    for ( std::size_t i{0}; m_idxllbbDRWP_PT.size() != i; ++i ) {
+      indexlist_t& tagIdx = *(m_idxllbbDRWP_tag.at(i).idxList());
+      tagIdx = *(m_idxllbbDRWP_PT.at(i).idxList());
+      std::stable_sort(std::begin(tagIdx), std::end(tagIdx),
+          MoreOf<index_t>([this] ( index_t iLLJJ ) {
+            return m_dileptondijets[iLLJJ].jj->first->bDiscriminator(m_jetBTagName)
+                 + m_dileptondijets[iLLJJ].jj->second->bDiscriminator(m_jetBTagName);
+          }));
+    }
+
+    // leptons-(b-)jets-MET
+
+    LogDebug("ttW") << "Dileptons-Dijets-MET";
+
+    // Using regular MET
+    const myLorentzVector met{producers.get<METProducer>(m_met_producer).p4};
+    for ( index_t illjj{0}; m_dileptondijets.size() != illjj; ++illjj ) {
+      m_dileptondijetmets.emplace_back(illjj, m_dileptondijets[illjj], met);
+      // TODO delta(R,eta,phi) l-met, j-met, min&max
+    }
+    for ( decltype(m_idxlljjmDRWP)::iterator iWP{m_idxlljjmDRWP.begin()}; m_idxlljjmDRWP.end() != iWP; ++iWP ) {
+      for ( index_t iLLJJM{0}; m_dileptondijetmets.size() != iLLJJM; ++iLLJJM ) {
+        if ( ( minDRjl(m_leptons, *(m_idxlWP.find(iWP.cut().first).idxList()), *(m_dileptondijetmets[iLLJJM].lljj->jj)) > m_jetDRleptonCut ) && ( iWP.cut().second(*(m_dileptondijetmets[iLLJJM].lljj->ll)) ) ) {
+          iWP.idxList()->push_back(iLLJJM);
+        }
       }
     }
-  }
-  // Store objects according to CSVv2
-  // First regular MET
-  for ( std::size_t illbbmWP{0}; m_idxllbbmDRWP_PT.size() != illbbmWP; ++illbbmWP ) {
-    indexlist_t& tagIdx = *(m_idxllbbmDRWP_tag.at(illbbmWP).idxList());
-    tagIdx = *(m_idxllbbmDRWP_PT.at(illbbmWP).idxList());
-    std::stable_sort(std::begin(tagIdx), std::end(tagIdx),
-        MoreOf<index_t>([this] ( index_t iLLJJM ) {
-          return m_dileptondijetmets[iLLJJM].lljj->jj->first->bDiscriminator(m_jetBTagName)
-               + m_dileptondijetmets[iLLJJM].lljj->jj->second->bDiscriminator(m_jetBTagName);
-        }));
+    for ( decltype(m_idxllbbmDRWP_PT)::iterator iWP{m_idxllbbmDRWP_PT.begin()}; m_idxllbbmDRWP_PT.end() != iWP; ++iWP ) {
+      for ( auto iLLJJM : *(m_idxlljjmDRWP.find(iWP.cut().first).idxList()) ) {
+        if ( iWP.cut().second(*(m_dileptondijetmets[iLLJJM].lljj->jj)) ) {
+          iWP.idxList()->push_back(iLLJJM); // NOTE di-b working points may include an ETA cut
+        }
+      }
+    }
+    // Store objects according to CSVv2
+    // First regular MET
+    for ( std::size_t illbbmWP{0}; m_idxllbbmDRWP_PT.size() != illbbmWP; ++illbbmWP ) {
+      indexlist_t& tagIdx = *(m_idxllbbmDRWP_tag.at(illbbmWP).idxList());
+      tagIdx = *(m_idxllbbmDRWP_PT.at(illbbmWP).idxList());
+      std::stable_sort(std::begin(tagIdx), std::end(tagIdx),
+          MoreOf<index_t>([this] ( index_t iLLJJM ) {
+            return m_dileptondijetmets[iLLJJM].lljj->jj->first->bDiscriminator(m_jetBTagName)
+                 + m_dileptondijetmets[iLLJJM].lljj->jj->second->bDiscriminator(m_jetBTagName);
+          }));
+    }
   }
 
   LogDebug("ttW") << "End event.";

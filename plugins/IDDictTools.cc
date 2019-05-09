@@ -133,7 +133,11 @@ public:
     const bool valid{mu.isNonnull() && mu->innerTrack().isNonnull()};
 
     Dict ret;
+    ret.add("innerTrack", valid);
     ret.add("DPToPT", valid && mu->innerTrack().isNonnull() ? mu->innerTrack()->ptError()/mu->innerTrack()->pt() : 0);
+    ret.add("isPFMuon", valid && mu->isPFMuon());
+    ret.add("isTrackerMuon", valid && mu->isTrackerMuon());
+    ret.add("isGlobalMuon", valid && mu->isGlobalMuon());
 
     return ret;
   }
